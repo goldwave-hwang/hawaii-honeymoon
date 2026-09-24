@@ -189,6 +189,18 @@ footer{text-align:center;padding:40px;color:#64748B;}
 <footer>
 Made with ❤️ for GitHub Pages
 </footer>
+<script>
 
+document.querySelectorAll('.day-header').forEach(header => {
+
+  header.addEventListener('click', () => {
+
+    header.parentElement.classList.toggle('active');
+
+  });
+
+});
+
+</script>
 </body>
 </html>
