@@ -3,517 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hawaii Honeymoon Planner</title>
-
+<title>Hawaii Honeymoon</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-
-:root{
- --blue:#35BDF7;
- --navy:#2563EB;
- --green:#10B981;
- --orange:#F59E0B;
- --bg:#F6FBFF;
- --card:#ffffff;
- --line:#E6EEF5;
- --text:#243447;
- --sub:#64748B;
-}
-
-body{
- font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
- background:var(--bg);
- color:var(--text);
-}
-
-header{
- background:linear-gradient(160deg,#39C3FF,#2563EB);
- color:white;
- padding:42px 24px 32px;
- border-radius:0 0 30px 30px;
-}
-
-header h1{
- font-size:30px;
- margin:8px 0;
-}
-
-.container{
- max-width:760px;
- margin:auto;
- padding:18px;
-}
-
-.tabs{
- position:sticky;
- top:0;
- z-index:100;
- background:rgba(246,251,255,.95);
- backdrop-filter:blur(12px);
- padding:12px 0;
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:8px;
-}
-
-.tab{
- border:none;
- background:white;
- padding:12px;
- border-radius:14px;
- font-weight:700;
- cursor:pointer;
- color:#64748B;
-}
-
-.tab.active{
- background:var(--blue);
- color:white;
-}
-
-.section{display:none;}
-.section.active{display:block;}
-
-.title{
- color:#0284C7;
- font-size:22px;
- font-weight:800;
- margin:18px 0;
-}
-
-.days{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:10px;
-}
-
-.day-btn{
- background:white;
- border:1px solid var(--line);
- border-radius:16px;
- padding:10px;
- text-align:center;
- cursor:pointer;
- transition:.2s;
-}
-
-.day-btn.active{
- border:2px solid var(--blue);
- background:#EAF7FF;
-}
-
-.day-btn .day{
- font-size:11px;
- color:#64748B;
-}
-
-.day-btn .date{
- font-weight:700;
- margin:3px 0;
-}
-
-.day-btn .island{
- font-size:11px;
- color:#0EA5E9;
-}
-
-.transfer{
- grid-column:1/-1;
- text-align:center;
- color:#2563EB;
- font-weight:700;
- padding:6px 0;
-}
-
-.card{
- background:white;
- border-radius:22px;
- padding:18px;
- margin-top:18px;
- box-shadow:0 8px 18px rgba(0,0,0,.05);
-}
-
-.badge{
- display:inline-block;
- background:#EAF7FF;
- color:#0284C7;
- padding:4px 10px;
- border-radius:999px;
- font-size:12px;
- margin-top:6px;
-}
-
-.timeline{
- margin-top:14px;
-}
-
-.item{
- display:flex;
- gap:14px;
- padding:12px 0;
- border-bottom:1px solid #EEF2F7;
-}
-
-.item:last-child{
- border-bottom:none;
-}
-
-.time{
- min-width:58px;
- color:#0284C7;
- font-weight:700;
-}
-
-.memo{
- margin-top:18px;
-}
-
-.memo textarea{
- width:100%;
- min-height:90px;
- padding:12px;
- border-radius:12px;
- border:1px solid #D7E4F2;
- font-size:14px;
- resize:vertical;
-}
-
-.icon-row{
- display:flex;
- gap:8px;
- flex-wrap:wrap;
- margin-top:14px;
-}
-
-.icon-chip{
- background:#F2F8FD;
- padding:8px 12px;
- border-radius:999px;
- font-size:13px;
-}
-
-.booking-card,.packing-card{
- background:white;
- border-radius:18px;
- padding:16px;
- margin-bottom:14px;
- box-shadow:0 5px 12px rgba(0,0,0,.04);
-}
-
-.booking-card h3,.packing-card h3{
- margin-bottom:12px;
-}
-
-.booking-card input{
- width:100%;
- padding:11px;
- border-radius:12px;
- border:1px solid #D6E4F2;
- margin-bottom:10px;
-}
-
-.check{
- padding:8px 0;
- display:flex;
- gap:10px;
- align-items:center;
-}
-
-.save{
- width:100%;
- padding:14px;
- border:none;
- border-radius:16px;
- background:linear-gradient(90deg,#38BDF8,#2563EB);
- color:white;
- font-weight:700;
- margin-top:10px;
- cursor:pointer;
-}
-
-footer{
- text-align:center;
- color:#94A3B8;
- padding:36px 0;
- font-size:13px;
-}
+body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;background:#F5FAFE;color:#1F2937}
+header{background:linear-gradient(160deg,#39BDF8,#2563EB);color:#fff;padding:40px 24px;border-radius:0 0 28px 28px}
+header h1{font-size:30px;margin:8px 0}
+.container{max-width:760px;margin:auto;padding:20px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;position:sticky;top:0;background:#F5FAFE;padding:10px 0}
+.tab{border:none;background:#fff;padding:12px;border-radius:14px;font-weight:700;color:#64748B;cursor:pointer}
+.tab.active{background:#35BDF7;color:#fff}
+.section{display:none}.section.active{display:block}
+.days{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.day-btn{background:#fff;border:1px solid #E5EEF6;border-radius:16px;padding:10px;text-align:center;cursor:pointer}
+.day-btn.active{border:2px solid #35BDF7;background:#EAF7FF}
+.day{font-size:11px;color:#64748B}.date{font-weight:700;margin:4px 0}.island{font-size:11px;color:#0284C7}
+.transfer{grid-column:1/-1;text-align:center;color:#2563EB;font-weight:700;padding:6px 0}
+.card{background:#fff;border-radius:20px;padding:18px;margin-top:18px;box-shadow:0 8px 18px rgba(0,0,0,.05)}
+.badge{display:inline-block;background:#EAF7FF;color:#0284C7;padding:4px 10px;border-radius:999px;font-size:12px;margin-top:8px}
+.item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #EEF2F7}.item:last-child{border:none}.time{width:60px;color:#0284C7;font-weight:700}
+.memo textarea{width:100%;margin-top:10px;padding:12px;border-radius:12px;border:1px solid #D7E4F2;min-height:90px}
+.booking-card,.packing-card{background:#fff;border-radius:18px;padding:16px;margin-bottom:14px}.booking-card input{width:100%;padding:10px;border-radius:10px;border:1px solid #D7E4F2;margin-top:8px}
+.check{padding:8px 0}
+footer{text-align:center;padding:40px;color:#94A3B8}
 </style>
 </head>
-
 <body>
-
 <header>
-  <div>🌺 2026 HAWAII HONEYMOON</div>
-  <h1>Injae ♥ Boyeon</h1>
-  <p>2026.10.27 – 2026.11.06</p>
+<div>🌺 2026 HAWAII HONEYMOON</div>
+<h1>Injae ♥ Boyeon</h1>
+<p>2026.10.27 – 2026.11.06</p>
 </header>
-
 <div class="container">
-
 <div class="tabs">
-  <button class="tab active" data-tab="schedule">📅 일정</button>
-  <button class="tab" data-tab="booking">🎟️ 예약</button>
-  <button class="tab" data-tab="packing">🧳 준비물</button>
+<button class="tab active" data-tab="schedule">📅 일정</button>
+<button class="tab" data-tab="booking">🎟️ 예약</button>
+<button class="tab" data-tab="packing">🧳 준비물</button>
 </div>
-
-<!-- 일정 -->
 <section id="schedule" class="section active">
-
-<h2 class="title">날짜별 일정</h2>
-
+<h2 style="color:#0284C7;margin-bottom:16px">날짜별 일정</h2>
 <div class="days" id="dayButtons"></div>
-
-<div class="card">
-<div id="scheduleContent"></div>
-
-<div class="memo">
-<h3>📝 오늘 메모</h3>
-<textarea id="memoBox" placeholder="여행하면서 메모하기"></textarea>
-</div>
-
-<div class="icon-row">
-<div class="icon-chip">🗺️ 지도</div>
-<div class="icon-chip">🍽️ 맛집</div>
-<div class="icon-chip">☕ 카페</div>
-<div class="icon-chip">📸 사진</div>
-</div>
-
-</div>
+<div class="card"><div id="scheduleContent"></div><div class="memo"><h3>📝 오늘 메모</h3><textarea placeholder="여행 메모를 적어보세요."></textarea></div></div>
 </section>
-
-<!-- 예약 -->
 <section id="booking" class="section">
-
-<h2 class="title">예약 정보</h2>
-
-<div class="booking-card">
-<h3>✈️ 항공권</h3>
-<input placeholder="예약번호">
-<input placeholder="항공편">
-</div>
-
-<div class="booking-card">
-<h3>🚗 Hertz 렌트카</h3>
-<input placeholder="예약번호">
-<input placeholder="픽업 시간">
-<input placeholder="반납 시간">
-</div>
-
-<div class="booking-card">
-<h3>🤿 Hanauma Bay</h3>
-<input placeholder="예약번호">
-<input placeholder="픽업 시간">
-</div>
-
-<div class="booking-card">
-<h3>🚲 Kualoa Ranch E-bike</h3>
-<input placeholder="예약번호">
-<input placeholder="투어 시간">
-</div>
-
-<div class="booking-card">
-<h3>🌺 Paradise Cove Luau</h3>
-<input placeholder="예약번호">
-</div>
-
-<button class="save">예약 정보 저장</button>
-
+<h2 style="color:#F59E0B;margin-bottom:16px">예약 정보</h2>
+<div class="booking-card"><h3>✈️ 항공권</h3><input placeholder="예약번호 / 항공편"></div>
+<div class="booking-card"><h3>🚗 Hertz 렌트카</h3><input placeholder="예약번호"><input placeholder="픽업 시간"></div>
+<div class="booking-card"><h3>🤿 Hanauma Bay</h3><input placeholder="예약번호 / 픽업 시간"></div>
+<div class="booking-card"><h3>🚲 Kualoa Ranch E-bike</h3><input placeholder="예약번호 / 투어 시간"></div>
+<div class="booking-card"><h3>🌺 Paradise Cove Luau</h3><input placeholder="예약번호"></div>
 </section>
-
-<!-- 준비물 -->
 <section id="packing" class="section">
-
-<h2 class="title">준비물</h2>
-
-<div class="packing-card">
-<h3>📄 여권 / 여행서류</h3>
-
-<div class="check"><input type="checkbox"> 여권</div>
-<div class="check"><input type="checkbox"> ESTA 승인서</div>
-<div class="check"><input type="checkbox"> 국제운전면허증</div>
-<div class="check"><input type="checkbox"> 신용카드</div>
-
-</div>
-
-<div class="packing-card">
-<h3>🌊 바다 준비물</h3>
-
-<div class="check"><input type="checkbox"> 래시가드</div>
-<div class="check"><input type="checkbox"> 스노클 장비</div>
-<div class="check"><input type="checkbox"> 아쿠아슈즈</div>
-<div class="check"><input type="checkbox"> 선크림 SPF50+</div>
-<div class="check"><input type="checkbox"> 방수팩</div>
-
-</div>
-
-<div class="packing-card">
-<h3>🔌 전자기기</h3>
-
-<div class="check"><input type="checkbox"> 아이폰 충전기</div>
-<div class="check"><input type="checkbox"> 애플워치 충전기</div>
-<div class="check"><input type="checkbox"> 멀티어댑터 (110V)</div>
-<div class="check"><input type="checkbox"> 보조배터리</div>
-
-</div>
-
+<h2 style="color:#10B981;margin-bottom:16px">준비물</h2>
+<div class="packing-card"><h3>📄 여권 / 여행서류</h3><div class="check"><input type="checkbox"> 여권</div><div class="check"><input type="checkbox"> ESTA</div><div class="check"><input type="checkbox"> 국제운전면허증</div><div class="check"><input type="checkbox"> 신용카드</div></div>
+<div class="packing-card"><h3>🌊 바다 준비물</h3><div class="check"><input type="checkbox"> 래시가드</div><div class="check"><input type="checkbox"> 스노클 장비</div><div class="check"><input type="checkbox"> 아쿠아슈즈</div><div class="check"><input type="checkbox"> 방수팩</div><div class="check"><input type="checkbox"> 선크림 SPF50+</div></div>
+<div class="packing-card"><h3>🔌 전자기기</h3><div class="check"><input type="checkbox"> 아이폰 충전기</div><div class="check"><input type="checkbox"> 애플워치 충전기</div><div class="check"><input type="checkbox"> 110V 멀티어댑터</div><div class="check"><input type="checkbox"> 보조배터리</div></div>
 </section>
-
-<footer>
-Made for our Hawaii Honeymoon 🌺
-</footer>
-
+<footer>Made for our Hawaii Honeymoon 🌺</footer>
 </div>
-
 <script>
-
-const days = [
-
-{label:"DAY 01",date:"10/27 (화)",island:"🏝️ Big Island · Hilo",items:[
-["13:00","🚗 Hertz 렌트카 픽업"],
-["15:00","🛒 힐로 장보기"],
-["17:00","🏨 Volcano House 체크인"],
-["18:30","🌋 킬라우에아 전망대"]
-]},
-
-{label:"DAY 02",date:"10/28 (수)",island:"🏝️ Big Island · Volcano NP",items:[
-["07:00","🌄 Chain of Craters Road"],
-["09:30","🌊 Holei Sea Arch"],
-["13:00","🥾 Kilauea Iki Trail"],
-["17:00","🌋 Lava Tube"]
-]},
-
-{label:"DAY 03",date:"10/29 (목)",island:"🏝️ Big Island · Kona",items:[
-["08:30","🏨 체크아웃"],
-["11:30","🚗 Kona 이동"],
-["13:30","🤿 Two Step Beach"],
-["18:00","🍽️ Umekes Fish Market"]
-]},
-
-{label:"DAY 04",date:"10/30 (금)",island:"🏝️ Big Island · Kona",items:[
-["09:00","☕ Kona Coffee Farm"],
-["13:00","🌴 Kona Town"],
-["17:30","🌌 Mauna Kea Visitor Center"]
-]},
-
-{label:"DAY 05-A",date:"10/31 (토)",island:"🏝️ Big Island 오전",items:[
-["08:00","🏨 체크아웃"],
-["09:30","☕ 코나 마지막 커피"],
-["11:30","✈️ Kona Airport 이동"]
-]},
-
-{label:"DAY 05-B",date:"10/31 (토)",island:"🌴 Oʻahu 오후",items:[
-["15:00","✈️ 호놀룰루 도착"],
-["16:30","🏨 Hyatt Regency Waikiki"],
-["18:00","🍔 Cheeseburger in Paradise"],
-["20:00","🎃 Waikiki Halloween"]
-]},
-
-{label:"DAY 06",date:"11/01 (일)",island:"🌴 Oʻahu · Waikiki",items:[
-["08:00","🏖️ Waikiki Beach"],
-["13:00","🛍️ Waikele Outlet"],
-["18:00","🦐 Kickin Seafood"]
-]},
-
-{label:"DAY 07",date:"11/02 (월)",island:"🌴 Oʻahu · Ko Olina",items:[
-["10:00","🌺 Paradise Cove Luau"],
-["17:00","🛍️ Ala Moana Center"]
-]},
-
-{label:"DAY 08",date:"11/03 (화)",island:"🌴 Oʻahu · North Shore",items:[
-["08:00","🚲 Kualoa Ranch E-bike"],
-["12:00","🌊 North Shore"],
-["13:30","🍧 Matsumoto Shave Ice"],
-["18:00","🌅 Sunset Beach"]
-]},
-
-{label:"DAY 09",date:"11/04 (수)",island:"🌴 Oʻahu · East Side",items:[
-["08:30","🌴 Makapuʻu Lookout"],
-["10:30","🏝️ Lanikai Beach"],
-["15:00","🛒 Costco"],
-["18:00","🍰 Cheesecake Factory"]
-]},
-
-{label:"DAY 10",date:"11/05 (목)",island:"🌴 Oʻahu · Hanauma Bay",items:[
-["07:30","🤿 Hanauma Bay"],
-["14:00","☕ Waikiki Cafe"],
-["18:30","🍺 Yard House"]
-]},
-
-{label:"DAY 11",date:"11/06 (금)",island:"🌴 Oʻahu · Honolulu",items:[
-["09:00","🥞 브런치"],
-["12:00","🛍️ 마지막 쇼핑"],
-["15:00","✈️ 공항 이동"]
-]}
-
+const days=[
+{label:'DAY 01',date:'10/27 (화)',island:'🏝️ Big Island · Hilo',items:[['13:00','🚗 Hertz 렌트카 픽업'],['15:00','🛒 힐로 장보기'],['17:00','🏨 Volcano House 체크인'],['18:30','🌋 킬라우에아 전망대']]},
+{label:'DAY 02',date:'10/28 (수)',island:'🏝️ Volcano NP',items:[['07:00','🌄 Chain of Craters Road'],['09:30','🌊 Holei Sea Arch'],['13:00','🥾 Kilauea Iki Trail']]},
+{label:'DAY 03',date:'10/29 (목)',island:'🏝️ Big Island · Kona',items:[['08:30','🏨 체크아웃'],['11:30','🚗 코나 이동'],['13:30','🤿 Two Step Beach'],['18:00','🍽️ Umekes Fish Market']]},
+{label:'DAY 04',date:'10/30 (금)',island:'🏝️ Big Island · Kona',items:[['09:00','☕ Kona Coffee Farm'],['17:30','🌌 Mauna Kea Visitor Center']]},
+{label:'DAY 05-A',date:'10/31 (토)',island:'🏝️ Big Island 오전',items:[['08:00','🏨 체크아웃'],['11:30','✈️ Kona Airport']]},
+{label:'DAY 05-B',date:'10/31 (토)',island:'🌴 Oʻahu 오후',items:[['15:00','✈️ 호놀룰루 도착'],['16:30','🏨 Hyatt Regency Waikiki'],['20:00','🎃 Waikiki Halloween']]},
+{label:'DAY 06',date:'11/01 (일)',island:'🌴 Waikiki',items:[['08:00','🏖️ Waikiki Beach'],['13:00','🛍️ Waikele Outlet'],['18:00','🦐 Kickin Seafood']]},
+{label:'DAY 07',date:'11/02 (월)',island:'🌴 Ko Olina',items:[['10:00','🌺 Paradise Cove Luau'],['17:30','🛍️ Ala Moana Center']]},
+{label:'DAY 08',date:'11/03 (화)',island:'🌴 North Shore',items:[['08:00','🚲 Kualoa Ranch'],['13:30','🍧 Matsumoto Shave Ice'],['18:00','🌅 Sunset Beach']]},
+{label:'DAY 09',date:'11/04 (수)',island:'🌴 East Side',items:[['08:30','🌴 Makapuʻu Lookout'],['10:30','🏝️ Lanikai Beach'],['15:00','🛒 Costco']]},
+{label:'DAY 10',date:'11/05 (목)',island:'🌴 Hanauma Bay',items:[['07:30','🤿 Hanauma Bay'],['18:30','🍺 Yard House']]},
+{label:'DAY 11',date:'11/06 (금)',island:'🌴 Honolulu',items:[['09:00','🥞 브런치'],['15:00','✈️ 공항 이동']]}
 ];
-
-let currentDay=0;
-
-const dayButtons=document.getElementById("dayButtons");
-const scheduleContent=document.getElementById("scheduleContent");
-
-days.forEach((d,i)=>{
-
-const b=document.createElement("div");
-b.className="day-btn";
-if(i===0)b.classList.add("active");
-
-b.innerHTML=`
-<div class="day">${d.label}</div>
-<div class="date">${d.date}</div>
-<div class="island">${d.island}</div>`;
-
-b.onclick=()=>{
-document.querySelectorAll(".day-btn").forEach(x=>x.classList.remove("active"));
-b.classList.add("active");
-currentDay=i;
-renderDay();
-}
-
-dayButtons.appendChild(b);
-
-if(d.label==="DAY 05-A"){
-const t=document.createElement("div");
-t.className="transfer";
-t.innerHTML="✈️ Big Island → Oʻahu";
-dayButtons.appendChild(t);
-}
-
-});
-
-function renderDay(){
-
-const d=days[currentDay];
-
-scheduleContent.innerHTML=`
-<h2>${d.label}</h2>
-<div class="badge">${d.date}</div>
-<p style="margin-top:10px;font-weight:700;color:#0284C7">${d.island}</p>
-
-<div class="timeline">
-${d.items.map(x=>`
-<div class="item">
-<div class="time">${x[0]}</div>
-<div>${x[1]}</div>
-</div>`).join("")}
-</div>
-`;
-
-}
-
-renderDay();
-
-document.querySelectorAll(".tab").forEach(btn=>{
-btn.onclick=()=>{
-document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-btn.classList.add("active");
-
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(btn.dataset.tab).classList.add("active");
-}
-});
-
+const btns=document.getElementById('dayButtons');
+const content=document.getElementById('scheduleContent');
+let current=0;
+days.forEach((d,i)=>{const b=document.createElement('div');b.className='day-btn';if(i===0)b.classList.add('active');b.innerHTML='<div class="day">'+d.label+'</div><div class="date">'+d.date+'</div><div class="island">'+d.island+'</div>';b.onclick=()=>{document.querySelectorAll('.day-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');current=i;render();};btns.appendChild(b);if(d.label==='DAY 05-A'){const t=document.createElement('div');t.className='transfer';t.innerHTML='✈️ Big Island → Oʻahu';btns.appendChild(t);}});
+function render(){const d=days[current];content.innerHTML='<h2>'+d.label+'</h2><div class="badge">'+d.date+'</div><p style="margin:8px 0;color:#0284C7;font-weight:700">'+d.island+'</p>'+d.items.map(x=>'<div class="item"><div class="time">'+x[0]+'</div><div>'+x[1]+'</div></div>').join('');}
+render();
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));t.classList.add('active');document.getElementById(t.dataset.tab).classList.add('active');});
 </script>
-
 </body>
 </html>
