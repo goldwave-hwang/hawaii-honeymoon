@@ -4,203 +4,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌺 INJAE ♥ BOYEON | Hawaii Honeymoon</title>
+<title>Hawaii Honeymoon 🌺</title>
 <style>
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1F2937;}
-header{background:linear-gradient(135deg,#0EA5E9,#22C55E);color:white;padding:50px 20px;text-align:center;}
-h1{margin:0;font-size:42px;}
-nav{position:sticky;top:0;background:white;padding:10px;border-bottom:1px solid #ddd;display:flex;gap:10px;overflow:auto;}
-nav a{text-decoration:none;background:#EEF6FF;padding:8px 14px;border-radius:999px;color:#0369A1;font-weight:bold;white-space:nowrap;}
-section{padding:25px;max-width:900px;margin:auto;}
-.day{background:white;border-radius:20px;padding:20px;margin:20px 0;box-shadow:0 6px 18px rgba(0,0,0,.08);}
-details{margin-top:12px;background:#F9FAFB;padding:12px;border-radius:12px;}
-summary{font-weight:bold;cursor:pointer;}
-.time{color:#0284C7;font-weight:bold;}
-footer{text-align:center;padding:40px;color:#64748B;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;background:#eef8ff;color:#24323d}
+.hero{background:linear-gradient(180deg,#1ea7ff,#73d7ff);color:white;padding:70px 24px 50px;border-bottom-left-radius:36px;border-bottom-right-radius:36px;text-align:center}
+.hero h1{font-size:40px;margin:8px 0}
+.container{max-width:760px;margin:32px auto;padding:0 18px}
+.section{margin:32px 0}
+.section h2{margin-bottom:16px;font-size:28px}
+.day-card{background:white;border-radius:22px;margin-bottom:14px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.day-header{width:100%;background:white;border:none;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;cursor:pointer}
+.arrow{transition:.3s;font-size:22px}
+.day-content{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;padding:0 20px}
+.day-card.active .day-content{max-height:520px;padding-bottom:18px}
+.day-card.active .arrow{transform:rotate(180deg)}
+.day-content ul{list-style:none}
+.day-content li{padding:10px 0;border-bottom:1px solid #eef2f5}
+.day-content li:last-child{border:none}
+footer{text-align:center;color:#6b7b88;padding:48px 16px;font-size:14px}
 </style>
 </head>
 <body>
 
-<header>
-<h1>🌺 Hawaii Honeymoon</h1>
-<p>2026.10.27 – 2026.11.06</p>
-<p>황인재 ♥ 임보연</p>
-</header>
-
-<nav>
-<a href="#bigisland">빅아일랜드</a>
-<a href="#oahu">오아후</a>
-</nav>
-
-<section id="bigisland">
-<h2>🌋 Big Island</h2>
-
-<div class="day">
-<h3>DAY 1 · 10/27 (화) Hilo</h3>
-<p>허츠 렌트카 → 장보기 → Volcano House 체크인</p>
-
-<details>
-<summary>상세 일정 보기</summary>
-<p><span class="time">13:00</span> 힐로 공항 렌트카 픽업</p>
-<p><span class="time">14:00</span> Walmart / Safeway 장보기</p>
-<p><span class="time">17:00</span> Volcano House 체크인</p>
-<p><span class="time">18:30</span> 화산 국립공원 석양</p>
-</details>
-</div>
-
-<div class="day">
-<h3>DAY 2 · 10/28 (수)</h3>
-<p>체인 오브 크레이터스 로드 + Holei Sea Arch + Iki Trail</p>
-
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>06:30 출발</li>
-<li>Chain of Craters Road</li>
-<li>Holei Sea Arch</li>
-<li>Thurston Lava Tube</li>
-<li>Kilauea Iki Trail</li>
-</ul>
-</details>
-</div>
-
-<div class="day">
-<h3>DAY 3 · 10/29 (목)</h3>
-<p>볼케이노 → 코나 이동 → Two Step Beach</p>
-
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>08:00 체크아웃</li>
-<li>코나 이동 (약 2시간)</li>
-<li>짐 맡기기</li>
-<li>Two Step Beach 스노클링</li>
-<li>저녁 휴식</li>
-</ul>
-</details>
-</div>
-
-<div class="day">
-<h3>DAY 4 · 10/30 (금)</h3>
-<p>커피농장 → 코나 시내 → Mauna Kea Visitor Center</p>
-
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>Greenwell Coffee Farm</li>
-<li>Kailua-Kona 산책</li>
-<li>일몰 후 Visitor Center 별보기</li>
-</ul>
-</details>
-</div>
+<section class="hero">
+  <p>2026.10.27 – 2026.11.06</p>
+  <h1>🌺 Hawaii Honeymoon</h1>
+  <p>Injae ♥ Boyeon</p>
 </section>
 
-<section id="oahu">
-<h2>🏝️ Oahu</h2>
+<div class="container">
 
-<div class="day">
-<h3>DAY 5 · 10/31 (토)</h3>
-<p>Hyatt Regency 체크인 · 할로윈 와이키키</p>
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>체크인</li>
-<li>Cheeseburger in Paradise</li>
-<li>와이키키 할로윈 거리 구경</li>
-</ul>
-</details>
+  <section class="section">
+    <h2>🏝️ Big Island</h2>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 1 · 10/27 (화) · 힐로 도착</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🚗 13:00 Hertz 렌트카 픽업</li>
+          <li>🛒 힐로 장보기</li>
+          <li>🏨 Volcano House 체크인</li>
+          <li>🌋 킬라우에아 전망대 산책</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 2 · 10/28 (수) · 화산국립공원</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🌄 Chain of Craters Road</li>
+          <li>🌊 Holei Sea Arch</li>
+          <li>🥾 Kilauea Iki Trail</li>
+          <li>🌋 Lava Tube</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 3 · 10/29 (목) · 코나 이동</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🚗 코나 이동</li>
+          <li>🤿 Two Step Beach</li>
+          <li>🌴 휴식</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 4 · 10/30 (금) · 커피 & 마우나케아</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>☕ Kona Coffee Farm</li>
+          <li>🌺 코나 타운</li>
+          <li>🌌 Mauna Kea Visitor Center</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="section">
+    <h2>🌴 Oʻahu</h2>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 5 · 10/31 (토) · 와이키키</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>✈️ 오아후 이동</li>
+          <li>🏨 Hyatt Regency Waikiki</li>
+          <li>🎃 Halloween Waikiki</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 6 · 11/1 (일) · 해변 & 쇼핑</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🏖️ Waikiki Beach</li>
+          <li>🛍️ Waikele Outlet</li>
+          <li>🦐 Kickin Seafood</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 7 · 11/2 (월) · Paradise Cove</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🌺 Paradise Cove Luau</li>
+          <li>🍗 Chick-fil-A</li>
+          <li>🛍️ Ala Moana Center</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 8 · 11/3 (화) · 쿠알로아 & 노스쇼어</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🚲 Kualoa Ranch E-bike</li>
+          <li>🌊 Sunset Beach</li>
+          <li>🍧 Haleiwa</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 9 · 11/4 (수) · 동부 드라이브</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🌴 Makapuʻu Lookout</li>
+          <li>🏝️ Lanikai Beach</li>
+          <li>🛒 Costco</li>
+          <li>🍰 Cheesecake Factory</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 10 · 11/5 (목) · Hanauma Bay</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🐠 Hanauma Bay</li>
+          <li>☕ Waikiki Cafe</li>
+          <li>🍺 Yard House</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <button class="day-header"><span>Day 11 · 11/6 (금) · 귀국</span><span class="arrow">⌄</span></button>
+      <div class="day-content">
+        <ul>
+          <li>🥞 브런치</li>
+          <li>🛍️ 마지막 쇼핑</li>
+          <li>✈️ 호놀룰루 공항</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
 </div>
 
-<div class="day">
-<h3>DAY 6 · 11/1 (일)</h3>
-<p>와이키키 해변 · Waikele Outlet</p>
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>와이키키 비치</li>
-<li>Poke 점심</li>
-<li>Waikele Outlet</li>
-<li>Kickin Seafood Bowl</li>
-</ul>
-</details>
-</div>
+<footer>Made with ♥ for our honeymoon.</footer>
 
-<div class="day">
-<h3>DAY 7 · 11/2 (월)</h3>
-<p>Paradise Cove Luau</p>
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>오전 자유시간</li>
-<li>Paradise Cove Luau</li>
-</ul>
-</details>
-</div>
-
-<div class="day">
-<h3>DAY 8 · 11/3 (화)</h3>
-<p>쿠알로아 랜치 e-bike → 노스쇼어</p>
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>08:00 E-bike Tour</li>
-<li>Haleiwa</li>
-<li>Matsumoto Shave Ice</li>
-<li>선셋 비치</li>
-</ul>
-</details>
-</div>
-
-<div class="day">
-<h3>DAY 9 · 11/4 (수)</h3>
-<p>동부 해안 드라이브 + Costco</p>
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>Makapu'u</li>
-<li>Lanai Lookout</li>
-<li>Halona Blowhole</li>
-<li>Costco 쇼핑</li>
-<li>Cheesecake Factory</li>
-</ul>
-</details>
-</div>
-
-<div class="day">
-<h3>DAY 10 · 11/5 (목)</h3>
-<p>하나우마베이 (픽업/드랍)</p>
-<details>
-<summary>상세 일정 보기</summary>
-<ul>
-<li>스노클링</li>
-<li>호텔 휴식</li>
-<li>Yard House</li>
-</ul>
-</details>
-</div>
-
-<div class="day">
-<h3>DAY 11 · 11/6 (금)</h3>
-<p>체크아웃 ✈️ 귀국</p>
-</div>
-
-</section>
-
-<footer>
-Made with ❤️ for GitHub Pages
-</footer>
 <script>
-
-document.querySelectorAll('.day-header').forEach(header => {
-
-  header.addEventListener('click', () => {
-
-    header.parentElement.classList.toggle('active');
-
-  });
-
+document.querySelectorAll('.day-header').forEach(btn=>{
+  btn.addEventListener('click',()=>btn.parentElement.classList.toggle('active'));
 });
-
 </script>
+
 </body>
 </html>
