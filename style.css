@@ -1,0 +1,46 @@
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+  background:#F5FAFE;
+}
+
+.hero{
+  background:linear-gradient(160deg,#38BDF8,#2563EB);
+  color:white;
+  padding:28px;
+  border-radius:0 0 28px 28px;
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  padding:16px;
+}
+
+.tab{
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  background:white;
+  font-weight:bold;
+}
+
+.tab.active{
+  background:#38BDF8;
+  color:white;
+}
+
+.container{
+  max-width:760px;
+  margin:auto;
+  padding:16px;
+}
+
+.card{
+  background:white;
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 8px 18px rgba(0,0,0,.05);
+}
