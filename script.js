@@ -108,3 +108,27 @@ function render() {
 }
 
 render();
+
+// ===============================
+// 탭 전환 복구 (V3.2 Fix)
+// ===============================
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+
+    // 버튼 active 변경
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+
+    // 페이지 숨기기
+    document.querySelectorAll(".page, .section").forEach(page => {
+      page.classList.remove("active");
+    });
+
+    // data-tab 값에 맞는 페이지 열기
+    const target = tab.dataset.tab;
+    const page = document.getElementById(target);
+
+    if (page) page.classList.add("active");
+  });
+});
