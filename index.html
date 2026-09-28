@@ -1,17 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hawaii Honeymoon Planner</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#087f9c">
+<title>인재 ♥ 보연 · 하와이 허니문</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#153846;background:#eef8f9;font-size:16px}*{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #e5a034;outline-offset:2px}.hero{background:linear-gradient(125deg,#075b77,#099db2 65%,#44b6b0);color:#fff;padding:25px max(18px,calc((100vw - 760px)/2));position:relative;overflow:hidden}.hero:after{content:"✺";position:absolute;right:7%;top:-57px;font-size:180px;color:#ffffff16;pointer-events:none}.eyebrow{font-size:.88rem;letter-spacing:.1em;font-weight:700}.hero h1{font-size:clamp(1.7rem,6vw,2.5rem);margin:6px 0 4px;line-height:1.2}.hero p{margin:0;color:#e3fcff;font-size:.95rem}.wrap{max-width:760px;margin:auto;padding:0 16px 70px}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fff;border-radius:16px;padding:6px;margin:16px 0 19px;box-shadow:0 4px 20px #10536513}.tabs button{border:0;border-radius:11px;background:transparent;color:#416270;font-weight:700;min-height:48px}.tabs button[aria-selected=true]{background:#087f9c;color:white}.panel[hidden]{display:none}.section-title{margin:20px 0 13px;font-size:1.2rem}.hint{color:#536d76;font-size:.88rem;margin:0 0 14px;line-height:1.5}.day-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.day-btn{text-align:left;background:#fff;border:2px solid transparent;border-radius:15px;padding:15px 13px;min-height:101px;box-shadow:0 3px 13px #1843550c;color:#163e4a}.day-btn[aria-pressed=true]{border-color:#008eaa;background:#e6f9fb}.day-btn strong{display:block;font-size:.83rem;color:#087f9c}.day-btn span{display:block;font-size:1rem;font-weight:750;margin:4px 0 2px}.day-btn small{display:block;color:#57727a;font-size:.82rem;line-height:1.3}.card{background:#fff;border:1px solid #d9edf0;border-radius:18px;padding:17px;margin:13px 0;box-shadow:0 3px 16px #1843550c}.detail{margin-top:18px}.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.detail-head h2{font-size:1.25rem;margin:0 0 4px}.detail-head p{margin:0;color:#57727a}.field{width:100%;border:1px solid #bdd9df;background:#fff;border-radius:10px;padding:11px 12px;color:#153846;min-width:0}.field::placeholder{color:#708b93}textarea.field{min-height:74px;resize:vertical;line-height:1.5}.row{display:flex;align-items:center;gap:8px;margin:10px 0}.row .field{flex:1}.row input[type=checkbox]{width:22px;height:22px;accent-color:#087f9c;flex:none}.row .done{text-decoration:line-through;color:#748b91}.icon{flex:none;border:0;background:#f1f6f7;color:#576e76;border-radius:10px;width:40px;height:42px;font-size:1.15rem}.icon:hover{background:#fcebe6;color:#a7412e}.add{border:1px dashed #68b3c1;background:#f0fbfc;color:#056b85;border-radius:11px;font-weight:750;padding:11px 14px;min-height:44px}.add:hover{background:#dff5f8}.wide{width:100%;margin:5px 0 12px}.group-title{display:flex;gap:8px;align-items:center}.group-title .field{font-weight:750}.group-content{margin-top:12px}.subtle{color:#617b82;font-size:.88rem;margin:9px 0}.label{display:block;font-size:.85rem;font-weight:700;color:#42646e;margin:15px 0 6px}.note{margin-top:10px}.empty{border:1px dashed #a9cdd4;border-radius:13px;color:#617b82;padding:17px;text-align:center;background:#f8fdfd}.detail .entry{display:flex;gap:8px;align-items:flex-start;margin:10px 0}.entry textarea{flex:1;min-height:58px}.status{color:#53717b;font-size:.8rem;text-align:center;margin:20px 0}.badge{background:#e4f7f8;color:#07758b;padding:5px 9px;border-radius:99px;font-size:.78rem;white-space:nowrap}@media(max-width:390px){.wrap{padding-left:12px;padding-right:12px}.day-btn{padding:12px 10px}.day-btn span{font-size:.92rem}.card{padding:13px}.tabs button{font-size:.91rem}}
+</style>
 </head>
 <body>
-<div class="hero">
-  <h1>🌺 Hawaii Honeymoon</h1>
-  <p>2026.10.27 – 11.06</p>
-</div>
-<div id="app"></div>
-<script src="script.js"></script>
+<header class="hero"><div class="eyebrow">HAWAII · 2026</div><h1>인재 ♥ 보연의 허니문</h1><p>10월 27일 – 11월 6일 · 빅아일랜드 & 오아후</p></header>
+<main class="wrap">
+<nav class="tabs" role="tablist" aria-label="여행 계획"><button type="button" role="tab" id="tab-schedule" aria-controls="schedule" aria-selected="true" data-tab="schedule">📅 일정</button><button type="button" role="tab" id="tab-booking" aria-controls="booking" aria-selected="false" data-tab="booking">🎟️ 예약</button><button type="button" role="tab" id="tab-packing" aria-controls="packing" aria-selected="false" data-tab="packing">🧳 준비물</button></nav>
+<section id="schedule" class="panel" role="tabpanel" aria-labelledby="tab-schedule"><h2 class="section-title">날짜별 일정</h2><p class="hint">날짜를 누르면 상세 일정을 자유롭게 적고 수정할 수 있어요.</p><div id="days" class="day-grid"></div><div id="day-detail"></div></section>
+<section id="booking" class="panel" role="tabpanel" aria-labelledby="tab-booking" hidden><h2 class="section-title">예약 정보</h2><p class="hint">카테고리와 예약 항목을 추가하고 완료하면 체크하세요.</p><div id="booking-groups"></div><button class="add wide" type="button" data-action="add-group" data-kind="booking">＋ 예약 카테고리 추가</button></section>
+<section id="packing" class="panel" role="tabpanel" aria-labelledby="tab-packing" hidden><h2 class="section-title">준비물</h2><p class="hint">대분류와 준비물을 직접 적고 챙긴 물건을 체크하세요.</p><div id="packing-groups"></div><button class="add wide" type="button" data-action="add-group" data-kind="packing">＋ 준비물 대분류 추가</button></section>
+<p class="status" id="storage-status">이 기기의 브라우저에 자동 저장됩니다.</p>
+</main>
+<script>
+(() => {
+  'use strict';
+  const KEY='hawaii-honeymoon-planner-v5';
+  const daySeeds=[
+    ['DAY 01','10/27 (화)','빅아일랜드 · 힐로',['18:00 인천공항 도착 · 주차장/주차대행 확인','20:50 인천공항 T2 대한항공 출발','09:40 호놀룰루 도착','12:10 호놀룰루 T1 알래스카항공 AS1052','13:00 힐로 도착 · 허츠 렌터카 픽업','힐로 시내 장보기 · 볼케이노 하우스 체크인']],
+    ['DAY 02','10/28 (수)','빅아일랜드 · 볼케이노',['Chain of Craters Road','Holei Sea Arch','Kīlauea Iki Trail']],
+    ['DAY 03','10/29 (목)','빅아일랜드 · 코나',['볼케이노 체크아웃 · 코나 이동','숙소에 짐 맡기기','Two Step Beach 스노클링','저녁 휴식']],
+    ['DAY 04','10/30 (금)','빅아일랜드 · 코나',['커피 농장 투어','코나 시내 구경 · 휴식','마우나케아 비지터 센터 별 보기']],
+    ['DAY 05-A','10/31 (토)','빅아일랜드 · 출발',['코나 체크아웃','오아후로 이동']],
+    ['DAY 05-B','10/31 (토)','오아후 · 와이키키',['하얏트 리젠시 체크인','Cheeseburger in Paradise','와이키키 할로윈']],
+    ['DAY 06','11/01 (일)','오아후 · 와이키키',['와이키키 비치 · 포케','와이켈레 아울렛','Kickin Seafood Bowl']],
+    ['DAY 07','11/02 (월)','오아후 · 코올리나',['Paradise Cove','Chick-fil-A','알라모아나 쇼핑']],
+    ['DAY 08','11/03 (화)','오아후 · 노스쇼어',['쿠알로아 랜치 e-bike','노스쇼어 구경 · 쇼핑 · 식사','일몰']],
+    ['DAY 09','11/04 (수)','오아후 · 동부 해안',['72번 도로 동부 해안 드라이브','Costco','Cheesecake Factory']],
+    ['DAY 10','11/05 (목)','오아후 · 하나우마베이',['하나우마베이 스노클링 · 예약 업체 픽업/드롭','쇼핑 · 휴식','Yard House']],
+    ['DAY 11','11/06 (금)','오아후 · 귀국',['체크아웃 · 귀국']]
+  ];
+  const seed=()=>({days:daySeeds.map(([label,date,place,entries])=>({label,date,place,entries})),booking:[{name:'항공권',items:[]},{name:'숙소',items:[]},{name:'렌터카',items:[]}],packing:[{name:'여권 · 서류',items:[]},{name:'의류',items:[]},{name:'바다 · 여행용품',items:[]}]});
+  const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
+  function load(){let data;try{data=JSON.parse(localStorage.getItem(KEY));}catch{}if(data&&Array.isArray(data.days)&&Array.isArray(data.booking)&&Array.isArray(data.packing))return data;
+    data=seed();try{const oldBooking=JSON.parse(localStorage.getItem('booking')||'null');if(Array.isArray(oldBooking)&&oldBooking.length)data.booking=oldBooking.map(g=>({name:String(g.title||g.name||'예약'),items:Array.isArray(g.items)?g.items.map(i=>({text:String(i.text||''),done:!!i.done})):g.memo?[{text:String(g.memo),done:false}]:[]}));const oldPacking=JSON.parse(localStorage.getItem('packing')||'null');if(Array.isArray(oldPacking)&&oldPacking.length)data.packing=oldPacking.map(g=>({name:String(g.name||'준비물'),items:Array.isArray(g.items)?g.items.map(i=>({text:String(i.text||''),done:!!i.done})):[]}));}catch{}return data;}
+  let data=load(),selected=0;const $=s=>document.querySelector(s);
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(data));$('#storage-status').textContent='이 기기의 브라우저에 자동 저장됩니다.';}catch{$('#storage-status').textContent='저장에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.';}}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function renderDays(){ $('#days').innerHTML=data.days.map((d,i)=>`<button class="day-btn" type="button" data-action="select-day" data-index="${i}" aria-pressed="${selected===i}"><strong>${esc(d.label)}</strong><span>${esc(d.date)}</span><small>${esc(d.place)}</small></button>`).join('');renderDetail();}
+  function renderDetail(){const d=data.days[selected];$('#day-detail').innerHTML=`<section class="card detail" aria-label="${esc(d.date)} 상세 일정"><div class="detail-head"><div><h2>${esc(d.label)} · ${esc(d.date)}</h2><p>${esc(d.place)}</p></div><span class="badge">상세 일정</span></div><div class="group-content">${d.entries.length?d.entries.map((entry,i)=>`<div class="entry"><textarea class="field" data-field="day-entry" data-index="${i}" aria-label="일정 ${i+1}" placeholder="시간과 할 일을 적어 주세요">${esc(entry)}</textarea><button class="icon" type="button" data-action="delete-entry" data-index="${i}" aria-label="일정 ${i+1} 삭제">×</button></div>`).join(''):'<div class="empty">아직 적은 일정이 없어요.</div>'}</div><button class="add" type="button" data-action="add-entry">＋ 상세 일정 추가</button></section>`;}
+  function renderGroups(kind){const host=$('#'+kind+'-groups');host.innerHTML=data[kind].map((g,gi)=>`<section class="card"><div class="group-title"><input class="field" value="${esc(g.name)}" data-field="group-name" data-kind="${kind}" data-group="${gi}" aria-label="${kind==='booking'?'예약 카테고리':'준비물 대분류'} 이름"><button class="icon" type="button" data-action="delete-group" data-kind="${kind}" data-group="${gi}" aria-label="${esc(g.name)} 삭제">×</button></div><div class="group-content">${g.items.length?g.items.map((item,ii)=>`<div class="row"><input type="checkbox" data-field="item-done" data-kind="${kind}" data-group="${gi}" data-item="${ii}" ${item.done?'checked':''} aria-label="${esc(item.text||'항목')} 완료"><input class="field ${item.done?'done':''}" value="${esc(item.text)}" data-field="item-text" data-kind="${kind}" data-group="${gi}" data-item="${ii}" placeholder="${kind==='booking'?'예약 항목':'준비물'} 입력" aria-label="항목 이름"><button class="icon" type="button" data-action="delete-item" data-kind="${kind}" data-group="${gi}" data-item="${ii}" aria-label="항목 삭제">×</button></div>`).join(''):'<p class="subtle">아직 항목이 없어요.</p>'}</div><button class="add" type="button" data-action="add-item" data-kind="${kind}" data-group="${gi}">＋ 항목 추가</button></section>`).join('')||'<div class="empty">카테고리를 추가해 주세요.</div>';}
+  function tab(name){document.querySelectorAll('[role=tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==name);}
+  document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.tab){tab(b.dataset.tab);return;}const a=b.dataset.action,kind=b.dataset.kind,gi=Number(b.dataset.group),ii=Number(b.dataset.item);if(a==='select-day'){selected=Number(b.dataset.index);renderDays();$('#day-detail').scrollIntoView({behavior:'smooth',block:'nearest'});}else if(a==='add-entry'){data.days[selected].entries.push('');save();renderDetail();$('#day-detail .entry:last-child textarea')?.focus();}else if(a==='delete-entry'){data.days[selected].entries.splice(Number(b.dataset.index),1);save();renderDetail();}else if(a==='add-group'){data[kind].push({name:'',items:[]});save();renderGroups(kind);$('#'+kind+'-groups .card:last-child .group-title input')?.focus();}else if(a==='delete-group'){if(!confirm('이 카테고리와 안의 항목을 모두 삭제할까요?'))return;data[kind].splice(gi,1);save();renderGroups(kind);}else if(a==='add-item'){data[kind][gi].items.push({text:'',done:false,id:uid()});save();renderGroups(kind);$('#'+kind+'-groups .card:nth-child('+(gi+1)+') .row:last-child input[data-field="item-text"]')?.focus();}else if(a==='delete-item'){data[kind][gi].items.splice(ii,1);save();renderGroups(kind);}});
+  document.addEventListener('input',e=>{const x=e.target,f=x.dataset.field,kind=x.dataset.kind,gi=Number(x.dataset.group),ii=Number(x.dataset.item);if(f==='day-entry')data.days[selected].entries[Number(x.dataset.index)]=x.value;else if(f==='group-name')data[kind][gi].name=x.value;else if(f==='item-text')data[kind][gi].items[ii].text=x.value;else return;save();});
+  document.addEventListener('change',e=>{const x=e.target;if(x.dataset.field==='item-done'){const kind=x.dataset.kind;data[kind][Number(x.dataset.group)].items[Number(x.dataset.item)].done=x.checked;x.nextElementSibling.classList.toggle('done',x.checked);save();}});
+  renderDays();renderGroups('booking');renderGroups('packing');
+})();
+</script>
 </body>
 </html>
