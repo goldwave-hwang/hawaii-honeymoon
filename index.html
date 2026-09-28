@@ -18,6 +18,10 @@
 
 .entry-text{flex:1;min-width:0;margin:0;padding:12px 14px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;background:#f4faf8;border:1px solid #e1eeea;border-radius:11px;min-height:48px}
 .entry-dialog{border:0;border-radius:20px;padding:24px;width:calc(100% - 32px);max-width:440px;color:#153846;box-shadow:0 20px 80px #06394345}.entry-dialog::backdrop{background:#062e3e88}.entry-dialog h2{font-size:1.2rem;margin:0 0 14px}.entry-dialog p{line-height:1.6}.entry-preview{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;background:#f2f8f6;padding:12px;border-radius:10px}.dialog-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.dialog-actions button{flex:1;border:0;border-radius:10px;padding:12px;min-height:46px;font-weight:700}.dialog-primary{background:#087d88;color:white}.dialog-secondary{background:#edf3f4;color:#375d65}.dialog-danger{background:#fff0ea;color:#aa4430}#entry-draft{min-height:150px}.dialog-error{color:#ac3929;font-size:.9rem}
+
+.sync-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid #d5e8e3;border-radius:13px;padding:10px 13px;margin-top:14px;color:#496b70;font-size:.88rem}.sync-bar button{border:1px solid #2a9390;color:#087474;background:#f5fdfb;border-radius:9px;padding:9px 11px;min-height:40px;font-weight:700;white-space:nowrap}.sync-dialog .field{font-family:inherit}.sync-dialog textarea{min-height:125px}.sync-help{font-size:.87rem;color:#527078;line-height:1.55}.sync-link{word-break:break-all;font-size:.8rem}.sync-dialog .dialog-actions{margin-top:12px}
+
+.readonly .add,.readonly .icon{display:none}.readonly .group-title input,.readonly .row input.field{background:#f6faf9;border-color:transparent;color:#153846;cursor:default}.readonly .row input[type=checkbox]{cursor:default}
 </style>
 </head>
 <body>
@@ -27,9 +31,11 @@
 <section id="schedule" class="panel" role="tabpanel" aria-labelledby="tab-schedule"><h2 class="section-title">날짜별 일정</h2><p class="hint">날짜를 눌러 일정을 확인하세요. 각 일정의 × 버튼에서 수정·삭제할 수 있어요.</p><div class="island-tabs" role="tablist" aria-label="섬별 일정"><button class="island-tab" id="island-big" type="button" role="tab" aria-selected="true" aria-controls="island-panel" data-island="big"><strong>🌋 빅아일랜드</strong><small>10/27 – 10/31 · DAY 05-A까지</small></button><button class="island-tab" id="island-oahu" type="button" role="tab" aria-selected="false" aria-controls="island-panel" data-island="oahu"><strong>🌴 오아후</strong><small>10/31 – 11/06 · DAY 05-B부터</small></button></div><div id="island-panel" role="tabpanel" aria-labelledby="island-big"><p class="island-caption" id="island-caption"></p><div id="days" class="day-grid"></div><div id="day-detail"></div></div></section>
 <section id="booking" class="panel" role="tabpanel" aria-labelledby="tab-booking" hidden><h2 class="section-title">예약 정보</h2><p class="hint">카테고리와 예약 항목을 추가하고 완료하면 체크하세요.</p><div id="booking-groups"></div><button class="add wide" type="button" data-action="add-group" data-kind="booking">＋ 예약 카테고리 추가</button></section>
 <section id="packing" class="panel" role="tabpanel" aria-labelledby="tab-packing" hidden><h2 class="section-title">준비물</h2><p class="hint">대분류와 준비물을 직접 적고 챙긴 물건을 체크하세요.</p><div id="packing-groups"></div><button class="add wide" type="button" data-action="add-group" data-kind="packing">＋ 준비물 대분류 추가</button></section>
+<div class="sync-bar"><span id="sync-state" role="status">이 기기에 저장 중 · 공유 연결 전</span><button type="button" id="sync-open">공유 동기화</button></div>
 <p class="status" id="storage-status">이 기기의 브라우저에 자동 저장됩니다.</p>
 </main>
 <dialog id="entry-dialog" class="entry-dialog" aria-labelledby="entry-dialog-title"><h2 id="entry-dialog-title"></h2><div id="entry-dialog-body"></div></dialog>
+<dialog id="sync-dialog" class="entry-dialog sync-dialog" aria-labelledby="sync-title"><h2 id="sync-title">두 사람 일정 연결</h2><div id="sync-content"></div><div class="dialog-actions"><button type="button" class="dialog-secondary" id="sync-close">닫기</button></div></dialog>
 <script>
 (() => {
   'use strict';
@@ -49,26 +55,255 @@
     ['DAY 11','11/06 (금)','오아후 · 귀국',['체크아웃 · 귀국']]
   ];
   const seed=()=>({days:daySeeds.map(([label,date,place,entries])=>({label,date,place,entries})),booking:[{name:'항공권',items:[]},{name:'숙소',items:[]},{name:'렌터카',items:[]}],packing:[{name:'여권 · 서류',items:[]},{name:'의류',items:[]},{name:'바다 · 여행용품',items:[]}]});
-  const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
-  function load(){let data;try{data=JSON.parse(localStorage.getItem(KEY));}catch{}if(data&&Array.isArray(data.days)&&Array.isArray(data.booking)&&Array.isArray(data.packing))return data;
-    data=seed();try{const oldBooking=JSON.parse(localStorage.getItem('booking')||'null');if(Array.isArray(oldBooking)&&oldBooking.length)data.booking=oldBooking.map(g=>({name:String(g.title||g.name||'예약'),items:Array.isArray(g.items)?g.items.map(i=>({text:String(i.text||''),done:!!i.done})):g.memo?[{text:String(g.memo),done:false}]:[]}));const oldPacking=JSON.parse(localStorage.getItem('packing')||'null');if(Array.isArray(oldPacking)&&oldPacking.length)data.packing=oldPacking.map(g=>({name:String(g.name||'준비물'),items:Array.isArray(g.items)?g.items.map(i=>({text:String(i.text||''),done:!!i.done})):[]}));}catch{}return data;}
-  let data=load(),selected=0,island='big';const lastDay={big:0,oahu:5};const $=s=>document.querySelector(s);
-  function save(){try{localStorage.setItem(KEY,JSON.stringify(data));$('#storage-status').textContent='이 기기의 브라우저에 자동 저장됩니다.';}catch{$('#storage-status').textContent='저장에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.';}}
+  const uid=()=>typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36);
+  function normalize(v){v.days.forEach(d=>d.entries=d.entries.map(e=>typeof e==='string'?{id:uid(),text:e}:{id:e.id||uid(),text:String(e.text??'')}));for(const kind of ['booking','packing'])v[kind].forEach(g=>{g.id=g.id||uid();g.items=(g.items||[]).map(i=>({id:i.id||uid(),text:String(i.text??''),done:!!i.done}));});return v;}
+  function load(){let data;try{data=JSON.parse(localStorage.getItem(KEY));}catch{}if(data&&Array.isArray(data.days)&&Array.isArray(data.booking)&&Array.isArray(data.packing))return normalize(data);
+    data=seed();try{const oldBooking=JSON.parse(localStorage.getItem('booking')||'null');if(Array.isArray(oldBooking)&&oldBooking.length)data.booking=oldBooking.map(g=>({name:String(g.title||g.name||'예약'),items:Array.isArray(g.items)?g.items.map(i=>({text:String(i.text||''),done:!!i.done})):g.memo?[{text:String(g.memo),done:false}]:[]}));const oldPacking=JSON.parse(localStorage.getItem('packing')||'null');if(Array.isArray(oldPacking)&&oldPacking.length)data.packing=oldPacking.map(g=>({name:String(g.name||'준비물'),items:Array.isArray(g.items)?g.items.map(i=>({text:String(i.text||''),done:!!i.done})):[]}));}catch{}return normalize(data);}
+  let data=load(),selected=0,island='big',canEdit=true;const lastDay={big:0,oahu:5};const $=s=>document.querySelector(s);
+  function save(op){try{localStorage.setItem(KEY,JSON.stringify(data));if(op)window.dispatchEvent(new CustomEvent('hawaii-change',{detail:op}));$('#storage-status').textContent='이 기기의 브라우저에 자동 저장됩니다.';}catch{$('#storage-status').textContent='저장에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.';}}
   function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function renderDays(){ document.querySelectorAll('[data-island]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.island===island)));$('#island-panel').setAttribute('aria-labelledby','island-'+island);$('#island-caption').textContent=island==='big'?'10/31 DAY 05-A · 빅아일랜드에서 출발하는 일정':'10/31 DAY 05-B · 오아후에 도착하는 일정부터';$('#days').innerHTML=data.days.map((d,i)=>({d,i})).filter(({i})=>island==='big'?i<5:i>=5).map(({d,i})=>`<button class="day-btn" type="button" data-action="select-day" data-index="${i}" aria-pressed="${selected===i}"><strong>${esc(d.label)}</strong><span>${esc(d.date)}</span><small>${esc(d.place)}</small></button>`).join('');renderDetail();}
-  function renderDetail(){const d=data.days[selected];$('#day-detail').innerHTML=`<section class="card detail" aria-label="${esc(d.date)} 상세 일정"><div class="detail-head"><div><h2>${esc(d.label)} · ${esc(d.date)}</h2><p>${esc(d.place)}</p></div><span class="badge">상세 일정</span></div><div class="group-content">${d.entries.length?d.entries.map((entry,i)=>`<div class="entry"><p class="entry-text">${esc(entry)||'내용 없는 일정'}</p><button class="icon" type="button" data-action="entry-menu" data-index="${i}" aria-label="일정 ${i+1} 수정 또는 삭제" aria-haspopup="dialog">×</button></div>`).join(''):'<div class="empty">아직 적은 일정이 없어요.</div>'}</div><button class="add" type="button" data-action="add-entry">＋ 상세 일정 추가</button></section>`;}
+  function renderDetail(){const d=data.days[selected];$('#day-detail').innerHTML=`<section class="card detail" aria-label="${esc(d.date)} 상세 일정"><div class="detail-head"><div><h2>${esc(d.label)} · ${esc(d.date)}</h2><p>${esc(d.place)}</p></div><span class="badge">상세 일정</span></div><div class="group-content">${d.entries.length?d.entries.map((entry,i)=>`<div class="entry"><p class="entry-text">${esc(entry.text)||'내용 없는 일정'}</p><button class="icon" type="button" data-action="entry-menu" data-index="${i}" aria-label="일정 ${i+1} 수정 또는 삭제" aria-haspopup="dialog">×</button></div>`).join(''):'<div class="empty">아직 적은 일정이 없어요.</div>'}</div><button class="add" type="button" data-action="add-entry">＋ 상세 일정 추가</button></section>`;}
   let editingDay=null,editingIndex=null;
-  function openEntry(index){editingDay=selected;editingIndex=index;const dialog=$('#entry-dialog');if(index===null){showEditor();}else{$('#entry-dialog-title').textContent='이 일정을 수정하거나 삭제할까요?';$('#entry-dialog-body').innerHTML=`<p class="entry-preview">${esc(data.days[editingDay].entries[index])||'내용 없는 일정'}</p><div class="dialog-actions"><button class="dialog-primary" type="button" data-action="edit-entry">수정</button><button class="dialog-danger" type="button" data-action="confirm-delete-entry">삭제</button><button class="dialog-secondary" type="button" data-action="close-entry">취소</button></div>`;}dialog.showModal();if(index===null)$('#entry-draft').focus();}
-  function showEditor(){$('#entry-dialog-title').textContent=editingIndex===null?'상세 일정 추가':'상세 일정 수정';$('#entry-dialog-body').innerHTML=`<label class="label" for="entry-draft">시간과 할 일</label><textarea class="field" id="entry-draft" placeholder="시간과 할 일을 적어 주세요">${editingIndex===null?'':esc(data.days[editingDay].entries[editingIndex])}</textarea><p id="entry-error" class="dialog-error" role="alert"></p><div class="dialog-actions"><button type="button" class="dialog-primary" data-action="save-entry">저장</button><button type="button" class="dialog-secondary" data-action="close-entry">취소</button></div>`;$('#entry-draft').focus();}
-  function commitEntry(){const value=$('#entry-draft').value;if(!value.trim()){$('#entry-error').textContent='일정 내용을 입력해 주세요.';$('#entry-draft').focus();return;}if(editingIndex===null)data.days[editingDay].entries.push(value);else data.days[editingDay].entries[editingIndex]=value;save();$('#entry-dialog').close();renderDetail();}
+  function openEntry(index){editingDay=selected;editingIndex=index;const dialog=$('#entry-dialog');if(index===null){showEditor();}else{$('#entry-dialog-title').textContent='이 일정을 수정하거나 삭제할까요?';$('#entry-dialog-body').innerHTML=`<p class="entry-preview">${esc(data.days[editingDay].entries[index].text)||'내용 없는 일정'}</p><div class="dialog-actions"><button class="dialog-primary" type="button" data-action="edit-entry">수정</button><button class="dialog-danger" type="button" data-action="confirm-delete-entry">삭제</button><button class="dialog-secondary" type="button" data-action="close-entry">취소</button></div>`;}dialog.showModal();if(index===null)$('#entry-draft').focus();}
+  function showEditor(){$('#entry-dialog-title').textContent=editingIndex===null?'상세 일정 추가':'상세 일정 수정';$('#entry-dialog-body').innerHTML=`<label class="label" for="entry-draft">시간과 할 일</label><textarea class="field" id="entry-draft" placeholder="시간과 할 일을 적어 주세요">${editingIndex===null?'':esc(data.days[editingDay].entries[editingIndex].text)}</textarea><p id="entry-error" class="dialog-error" role="alert"></p><div class="dialog-actions"><button type="button" class="dialog-primary" data-action="save-entry">저장</button><button type="button" class="dialog-secondary" data-action="close-entry">취소</button></div>`;$('#entry-draft').focus();}
+  function commitEntry(){const value=$('#entry-draft').value;if(!value.trim()){$('#entry-error').textContent='일정 내용을 입력해 주세요.';$('#entry-draft').focus();return;}let op;if(editingIndex===null){const entry={id:uid(),text:value};data.days[editingDay].entries.push(entry);op={type:'day-add',day:editingDay,entry};}else{const entry=data.days[editingDay].entries[editingIndex];entry.text=value;op={type:'day-edit',day:editingDay,id:entry.id,text:value};}save(op);$('#entry-dialog').close();renderDetail();}
   function renderGroups(kind){const host=$('#'+kind+'-groups');host.innerHTML=data[kind].map((g,gi)=>`<section class="card"><div class="group-title"><input class="field" value="${esc(g.name)}" data-field="group-name" data-kind="${kind}" data-group="${gi}" aria-label="${kind==='booking'?'예약 카테고리':'준비물 대분류'} 이름"><button class="icon" type="button" data-action="delete-group" data-kind="${kind}" data-group="${gi}" aria-label="${esc(g.name)} 삭제">×</button></div><div class="group-content">${g.items.length?g.items.map((item,ii)=>`<div class="row"><input type="checkbox" data-field="item-done" data-kind="${kind}" data-group="${gi}" data-item="${ii}" ${item.done?'checked':''} aria-label="${esc(item.text||'항목')} 완료"><input class="field ${item.done?'done':''}" value="${esc(item.text)}" data-field="item-text" data-kind="${kind}" data-group="${gi}" data-item="${ii}" placeholder="${kind==='booking'?'예약 항목':'준비물'} 입력" aria-label="항목 이름"><button class="icon" type="button" data-action="delete-item" data-kind="${kind}" data-group="${gi}" data-item="${ii}" aria-label="항목 삭제">×</button></div>`).join(''):'<p class="subtle">아직 항목이 없어요.</p>'}</div><button class="add" type="button" data-action="add-item" data-kind="${kind}" data-group="${gi}">＋ 항목 추가</button></section>`).join('')||'<div class="empty">카테고리를 추가해 주세요.</div>';}
   function tab(name){document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==name);}
-  document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.island){lastDay[island]=selected;island=b.dataset.island;selected=lastDay[island];renderDays();return;}if(b.dataset.tab){tab(b.dataset.tab);return;}const a=b.dataset.action,kind=b.dataset.kind,gi=Number(b.dataset.group),ii=Number(b.dataset.item);if(a==='select-day'){selected=Number(b.dataset.index);renderDays();$('#day-detail').scrollIntoView({behavior:'smooth',block:'nearest'});}else if(a==='add-entry'){openEntry(null);}else if(a==='entry-menu'){openEntry(Number(b.dataset.index));}else if(a==='edit-entry'){showEditor();}else if(a==='close-entry'){$('#entry-dialog').close();}else if(a==='save-entry'){commitEntry();}else if(a==='confirm-delete-entry'){data.days[editingDay].entries.splice(editingIndex,1);save();$('#entry-dialog').close();renderDetail();}else if(a==='add-group'){data[kind].push({name:'',items:[]});save();renderGroups(kind);$('#'+kind+'-groups .card:last-child .group-title input')?.focus();}else if(a==='delete-group'){if(!confirm('이 카테고리와 안의 항목을 모두 삭제할까요?'))return;data[kind].splice(gi,1);save();renderGroups(kind);}else if(a==='add-item'){data[kind][gi].items.push({text:'',done:false,id:uid()});save();renderGroups(kind);$('#'+kind+'-groups .card:nth-child('+(gi+1)+') .row:last-child input[data-field="item-text"]')?.focus();}else if(a==='delete-item'){data[kind][gi].items.splice(ii,1);save();renderGroups(kind);}});
+  document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.action&&!canEdit)return;if(b.dataset.island){lastDay[island]=selected;island=b.dataset.island;selected=lastDay[island];renderDays();return;}if(b.dataset.tab){tab(b.dataset.tab);return;}const a=b.dataset.action,kind=b.dataset.kind,gi=Number(b.dataset.group),ii=Number(b.dataset.item);if(a==='select-day'){selected=Number(b.dataset.index);renderDays();$('#day-detail').scrollIntoView({behavior:'smooth',block:'nearest'});}else if(a==='add-entry'){openEntry(null);}else if(a==='entry-menu'){openEntry(Number(b.dataset.index));}else if(a==='edit-entry'){showEditor();}else if(a==='close-entry'){$('#entry-dialog').close();}else if(a==='save-entry'){commitEntry();}else if(a==='confirm-delete-entry'){const id=data.days[editingDay].entries[editingIndex].id;data.days[editingDay].entries.splice(editingIndex,1);save({type:'day-delete',day:editingDay,id});$('#entry-dialog').close();renderDetail();}else if(a==='add-group'){const group={id:uid(),name:'',items:[]};data[kind].push(group);save({type:'group-add',kind,group});renderGroups(kind);$('#'+kind+'-groups .card:last-child .group-title input')?.focus();}else if(a==='delete-group'){if(!confirm('이 카테고리와 안의 항목을 모두 삭제할까요?'))return;const id=data[kind][gi].id;data[kind].splice(gi,1);save({type:'group-delete',kind,id});renderGroups(kind);}else if(a==='add-item'){const item={text:'',done:false,id:uid()};data[kind][gi].items.push(item);save({type:'item-add',kind,groupId:data[kind][gi].id,item});renderGroups(kind);$('#'+kind+'-groups .card:nth-child('+(gi+1)+') .row:last-child input[data-field="item-text"]')?.focus();}else if(a==='delete-item'){const id=data[kind][gi].items[ii].id;data[kind][gi].items.splice(ii,1);save({type:'item-delete',kind,groupId:data[kind][gi].id,id});renderGroups(kind);}});
   document.querySelector('.island-tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const next=e.key==='Home'?'big':e.key==='End'?'oahu':island==='big'?'oahu':'big';const b=document.querySelector('[data-island='+next+']');b.click();b.focus();});
-  document.addEventListener('input',e=>{const x=e.target,f=x.dataset.field,kind=x.dataset.kind,gi=Number(x.dataset.group),ii=Number(x.dataset.item);if(f==='group-name')data[kind][gi].name=x.value;else if(f==='item-text')data[kind][gi].items[ii].text=x.value;else return;save();});
-  document.addEventListener('change',e=>{const x=e.target;if(x.dataset.field==='item-done'){const kind=x.dataset.kind;data[kind][Number(x.dataset.group)].items[Number(x.dataset.item)].done=x.checked;x.nextElementSibling.classList.toggle('done',x.checked);save();}});
+  document.addEventListener('input',e=>{if(!canEdit)return;const x=e.target,f=x.dataset.field,kind=x.dataset.kind,gi=Number(x.dataset.group),ii=Number(x.dataset.item);let op;if(f==='group-name'){data[kind][gi].name=x.value;op={type:'group-name',kind,id:data[kind][gi].id,name:x.value};}else if(f==='item-text'){data[kind][gi].items[ii].text=x.value;op={type:'item-text',kind,groupId:data[kind][gi].id,id:data[kind][gi].items[ii].id,text:x.value};}else return;save(op);});
+  document.addEventListener('change',e=>{if(!canEdit)return;const x=e.target;if(x.dataset.field==='item-done'){const kind=x.dataset.kind;data[kind][Number(x.dataset.group)].items[Number(x.dataset.item)].done=x.checked;x.nextElementSibling.classList.toggle('done',x.checked);save({type:'item-done',kind,groupId:data[kind][Number(x.dataset.group)].id,id:data[kind][Number(x.dataset.group)].items[Number(x.dataset.item)].id,done:x.checked});}});
+  window.HawaiiPlanner={getState:()=>JSON.parse(JSON.stringify(data)),acceptRemote:remote=>{data=normalize(remote);localStorage.setItem(KEY,JSON.stringify(data));renderDays();renderGroups('booking');renderGroups('packing');document.querySelectorAll('.readonly .row input[type=checkbox]').forEach(x=>x.disabled=true);},setEditable:editable=>{if(canEdit===editable)return;canEdit=editable;document.body.classList.toggle('readonly',!editable);renderDetail();renderGroups('booking');renderGroups('packing');document.querySelectorAll('.readonly .row input[type=checkbox]').forEach(x=>x.disabled=true);},key:KEY};
   renderDays();renderGroups('booking');renderGroups('packing');
 })();
+</script>
+<script type="module">
+const ui = {
+  dialog: document.getElementById('sync-dialog'),
+  content: document.getElementById('sync-content'),
+  state: document.getElementById('sync-state')
+};
+const planner = window.HawaiiPlanner;
+const CONFIG_KEY = 'hawaii-shared-connection-v1';
+const QUEUE_KEY = 'hawaii-shared-pending-v1-';
+let connection = null, sdk = null, auth = null, db = null, planRef = null;
+let cloudDoc = null, unsubscribe = null, busy = false, debounceTimer = null;
+let queue = [], connectionError = '';
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const validPlan = id => /^[a-f0-9]{32}$/.test(id);
+const getEmail = () => auth?.currentUser?.email?.toLowerCase() || '';
+const isEditor = () => !!cloudDoc && cloudDoc.editorEmails.includes(getEmail());
+
+function setStatus(message) { ui.state.textContent = message; }
+function setPermissions() {
+  // The Firestore rules enforce permissions even if someone changes the page's buttons.
+  const editable = !connection || (isEditor() && !!auth?.currentUser);
+  planner.setEditable(editable);
+  ui.state.textContent = connectionError || (!connection ? '이 기기에 저장 중 · 공유 연결 전' :
+    busy || queue.length ? '공유 일정 저장 중…' :
+    !cloudDoc ? '공유 일정을 불러오는 중…' :
+    editable ? '공유 중 · 너와 보연이 수정 가능' : '공유 중 · 보기 전용');
+}
+function encodeLink(config, id) {
+  const payload = btoa(JSON.stringify({config, id})).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  return location.origin + location.pathname + '#share=' + payload;
+}
+function parseLink() {
+  const match = location.hash.match(/^#share=([\w-]+)$/);
+  if (!match) return null;
+  try {
+    const raw = match[1].replace(/-/g,'+').replace(/_/g,'/');
+    const item = JSON.parse(atob(raw));
+    return validPlan(item.id) && validateConfig(item.config) ? item : null;
+  } catch { return null; }
+}
+function validateConfig(config) {
+  return config && ['apiKey','authDomain','projectId','appId'].every(k => typeof config[k] === 'string' && config[k].trim());
+}
+function parseConfig(raw) {
+  // The console supplies a JavaScript object; accept that form as well as plain JSON.
+  const body = raw.slice(raw.indexOf('{'), raw.lastIndexOf('}')+1)
+    .replace(/([,{]\s*)([a-zA-Z]\w*)\s*:/g, '$1"$2":')
+    .replace(/'/g,'"').replace(/,\s*}/g,'}');
+  const config = JSON.parse(body);
+  if (!validateConfig(config)) throw new Error('Firebase 웹 앱 설정의 apiKey, authDomain, projectId, appId를 확인해 주세요.');
+  return config;
+}
+function syncMenu() {
+  if (!connection) {
+    ui.content.innerHTML = `<p class="sync-help">두 사람이 실시간으로 수정하려면 처음 한 번 Firebase 프로젝트를 연결해야 해요. 연결 후 공유 링크를 보내면 다른 사람은 보기만 할 수 있습니다.</p>
+      <label class="label" for="firebase-config">Firebase 웹 앱 설정 (firebaseConfig 전체)</label>
+      <textarea id="firebase-config" class="field" placeholder="const firebaseConfig = { apiKey: '...', authDomain: '...', projectId: '...', appId: '...' };"></textarea>
+      <p class="sync-help">Google 로그인과 Cloud Firestore를 켜고, 제공한 보안 규칙을 게시한 뒤 연결하세요.</p>
+      <div class="dialog-actions"><button class="dialog-primary" type="button" data-sync="configure">연결 설정</button></div><p id="sync-error" class="dialog-error"></p>`;
+    return;
+  }
+  const signedIn = getEmail();
+  const login = signedIn ? `<p class="sync-help">로그인: ${escapeHtml(signedIn)} · ${isEditor()?'수정 가능':'보기 전용'}</p><button type="button" class="dialog-secondary" data-sync="signout">로그아웃</button>` :
+    `<button type="button" class="dialog-primary" data-sync="signin">수정하려면 Google 로그인</button>`;
+  if (!connection.id) {
+    ui.content.innerHTML = `<p class="sync-help">현재 이 브라우저에 적힌 계획을 새 공유 일정으로 올립니다. 먼저 너의 Google 계정으로 로그인하세요.</p>${login}
+      <label class="label" for="partner-email">보연이의 Google 이메일</label><input id="partner-email" class="field" type="email" autocomplete="email" placeholder="보연이가 로그인할 Google 이메일">
+      <div class="dialog-actions"><button type="button" class="dialog-primary" data-sync="create">현재 계획으로 공유 시작</button></div><p id="sync-error" class="dialog-error"></p>`;
+    return;
+  }
+  const link=encodeLink(connection.config,connection.id);
+  ui.content.innerHTML = `<p class="sync-help">공유 링크를 받은 사람은 로그인하지 않아도 볼 수 있어요. 아래에 등록된 두 Google 계정만 수정할 수 있습니다.</p>
+    ${cloudDoc ? `<p class="sync-help">수정 계정: ${cloudDoc.editorEmails.map(escapeHtml).join(' · ')}</p>` : ''}
+    <input class="field sync-link" id="share-link" readonly value="${escapeHtml(link)}" aria-label="공유 링크">
+    <div class="dialog-actions"><button type="button" class="dialog-primary" data-sync="copy">공유 링크 복사</button>${login}</div>
+    <p class="sync-help">이 링크를 받은 사람은 일정 내용을 볼 수 있으므로 필요한 사람에게만 보내세요.</p><p id="sync-error" class="dialog-error"></p>`;
+}
+function showError(error) {
+  connectionError = '공유 연결 오류 · 이 기기에만 저장됨';
+  setPermissions();
+  const el=document.getElementById('sync-error');
+  if (el) el.textContent = typeof error === 'string' ? error : (error?.message || String(error));
+}
+function normalizedRemote(state) {
+  if (!state || !Array.isArray(state.days) || state.days.length !== 12 ||
+      !Array.isArray(state.booking) || !Array.isArray(state.packing)) throw new Error('공유 일정 형식이 올바르지 않습니다.');
+  return JSON.parse(JSON.stringify(state));
+}
+function applyOp(state, op) {
+  if (op.type.startsWith('day-')) {
+    const entries=state.days[op.day]?.entries;
+    if (!entries) return;
+    const index=entries.findIndex(e=>e.id===op.id);
+    if (op.type==='day-add' && !entries.some(e=>e.id===op.entry.id)) entries.push(op.entry);
+    if (op.type==='day-edit' && index>=0) entries[index].text=op.text;
+    if (op.type==='day-delete' && index>=0) entries.splice(index,1);
+    return;
+  }
+  const groups=state[op.kind]; if (!Array.isArray(groups)) return;
+  const index=groups.findIndex(g=>g.id===op.id || g.id===op.groupId);
+  if (op.type==='group-add') { if (!groups.some(g=>g.id===op.group.id)) groups.push(op.group); return; }
+  if (index<0) return;
+  const group=groups[index];
+  if (op.type==='group-delete') groups.splice(index,1);
+  if (op.type==='group-name') group.name=op.name;
+  if (op.type==='item-add' && !group.items.some(i=>i.id===op.item.id)) group.items.push(op.item);
+  const itemIndex=group.items.findIndex(i=>i.id===op.id);
+  if (op.type==='item-delete' && itemIndex>=0) group.items.splice(itemIndex,1);
+  if (op.type==='item-text' && itemIndex>=0) group.items[itemIndex].text=op.text;
+  if (op.type==='item-done' && itemIndex>=0) group.items[itemIndex].done=op.done;
+}
+function backupLocal() {
+  const key=planner.key+'-before-share-'+connection.id;
+  if (!localStorage.getItem(key)) localStorage.setItem(key,JSON.stringify(planner.getState()));
+}
+function acceptCloud() {
+  if (!cloudDoc || queue.length || busy || ui.dialog.open && document.getElementById('entry-draft')) return;
+  const active=document.activeElement;
+  if (active?.matches?.('.group-title input, .row input.field, #entry-draft')) return;
+  backupLocal();
+  planner.acceptRemote(cloudDoc.state);
+  setPermissions();
+}
+async function flush() {
+  if (busy || !queue.length || !planRef || !isEditor()) { setPermissions(); return; }
+  busy=true;setPermissions();
+  while (queue.length && planRef && isEditor()) {
+    const op=queue[0];
+    try {
+      const merged=await sdk.runTransaction(db, async tx=>{
+        const snapshot=await tx.get(planRef);
+        if (!snapshot.exists()) throw new Error('공유 일정이 없습니다.');
+        const state=normalizedRemote(snapshot.data().state);
+        applyOp(state,op);
+        tx.update(planRef,{state,updatedAt:sdk.serverTimestamp()});
+        return state;
+      });
+      cloudDoc.state=merged;
+      queue.shift();localStorage.setItem(QUEUE_KEY+connection.id,JSON.stringify(queue));
+      connectionError='';
+    } catch(error) {showError(error);break;}
+  }
+  busy=false;setPermissions();acceptCloud();
+}
+async function loadSdk(config) {
+  const version='12.19.0';
+  const [appModule,authModule,dbModule]=await Promise.all([
+    import(`https://www.gstatic.com/firebasejs/${version}/firebase-app.js`),
+    import(`https://www.gstatic.com/firebasejs/${version}/firebase-auth.js`),
+    import(`https://www.gstatic.com/firebasejs/${version}/firebase-firestore.js`)
+  ]);
+  sdk={...authModule,...dbModule};
+  const app=appModule.initializeApp(config);
+  auth=authModule.getAuth(app);db=dbModule.getFirestore(app);
+  authModule.onAuthStateChanged(auth,()=>{setPermissions();syncMenu();flush();});
+}
+async function connect(next) {
+  if (!validateConfig(next.config)) throw new Error('Firebase 설정을 확인해 주세요.');
+  if (connection?.id && unsubscribe) unsubscribe();
+  connection=next;cloudDoc=null;connectionError='';
+  localStorage.setItem(CONFIG_KEY,JSON.stringify(connection));
+  setPermissions();syncMenu();
+  if (!sdk) await loadSdk(connection.config);
+  if (!connection.id) return;
+  planRef=sdk.doc(db,'plans',connection.id);
+  queue=JSON.parse(localStorage.getItem(QUEUE_KEY+connection.id)||'[]');
+  unsubscribe=sdk.onSnapshot(planRef,snapshot=>{
+    if (!snapshot.exists()) {showError('공유 일정이 없습니다. 링크를 다시 확인해 주세요.');return;}
+    const item=snapshot.data();
+    try {cloudDoc={state:normalizedRemote(item.state),editorEmails:item.editorEmails||[]};}
+    catch(error){showError(error);return;}
+    connectionError='';setPermissions();acceptCloud();syncMenu();flush();
+  },showError);
+}
+window.addEventListener('hawaii-change',event=>{
+  if (!connection?.id || !isEditor()) return;
+  const op=event.detail;
+  const isText=['group-name','item-text'].includes(op.type);
+  const last=queue.at(-1);
+  if(isText && last?.type===op.type && last.id===op.id && last.groupId===op.groupId) queue[queue.length-1]=op;
+  else queue.push(op);
+  localStorage.setItem(QUEUE_KEY+connection.id,JSON.stringify(queue));
+  setPermissions();
+  if(debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer=setTimeout(flush,isText?450:0);
+});
+window.addEventListener('online',flush);
+document.addEventListener('focusout',()=>setTimeout(acceptCloud,0));
+document.getElementById('sync-open').addEventListener('click',()=>{syncMenu();ui.dialog.showModal();});
+document.getElementById('sync-close').addEventListener('click',()=>ui.dialog.close());
+ui.dialog.addEventListener('click',async event=>{
+  const action=event.target.closest('button')?.dataset.sync;
+  if (!action) return;
+  try {
+    if (action==='configure') {
+      const config=parseConfig(document.getElementById('firebase-config').value);
+      await connect({config,id:null});
+    } else if (action==='signin') {
+      if (!auth) throw new Error('Firebase 연결을 먼저 완료해 주세요.');
+      await sdk.signInWithPopup(auth,new sdk.GoogleAuthProvider());
+    } else if (action==='signout') {
+      await sdk.signOut(auth);
+    } else if (action==='create') {
+      if (!getEmail()) throw new Error('먼저 너의 Google 계정으로 로그인해 주세요.');
+      const partner=document.getElementById('partner-email').value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partner) || partner===getEmail()) throw new Error('보연이의 다른 Google 이메일을 입력해 주세요.');
+      const bytes=crypto.getRandomValues(new Uint8Array(16));
+      const id=Array.from(bytes,x=>x.toString(16).padStart(2,'0')).join('');
+      const ref=sdk.doc(db,'plans',id);
+      await sdk.setDoc(ref,{state:planner.getState(),editorEmails:[getEmail(),partner],ownerEmail:getEmail(),updatedAt:sdk.serverTimestamp()});
+      await connect({config:connection.config,id});
+    } else if (action==='copy') {
+      const field=document.getElementById('share-link');
+      try {await navigator.clipboard.writeText(field.value);field.focus();field.select();const el=document.getElementById('sync-error');el.textContent='링크를 복사했어요.';}
+      catch {field.focus();field.select();document.getElementById('sync-error').textContent='링크를 선택했어요. Ctrl+C로 복사해 주세요.';}
+    }
+  } catch(error) {showError(error);}
+});
+try {
+  const invite=parseLink();
+  const saved=JSON.parse(localStorage.getItem(CONFIG_KEY)||'null');
+  if (invite) await connect(invite);
+  else if (saved && validateConfig(saved.config)) await connect(saved);
+} catch(error) {showError(error);}
+setPermissions();
+
 </script>
 </body>
 </html>
