@@ -108,11 +108,27 @@ function setPermissions() {
     !cloudDoc ? '공유 일정을 불러오는 중…' :
     editable ? '공유 중 · 너와 보연이 수정 가능' : '공유 중 · 보기 전용');
 }
+const LINK_CONFIG = Object.freeze({
+  apiKey: 'AIzaSyDnDQIVYJD_O2P5RGDkknQWwTHrdy1Q_KU',
+  authDomain: 'hawaii-honeymoon-36d45.firebaseapp.com',
+  projectId: 'hawaii-honeymoon-36d45',
+  storageBucket: 'hawaii-honeymoon-36d45.firebasestorage.app',
+  messagingSenderId: '518417014860',
+  appId: '1:518417014860:web:eee503e588e51f2df194e9'
+});
+function usesLinkConfig(config) {
+  return Object.keys(LINK_CONFIG).every(key => config?.[key] === LINK_CONFIG[key]);
+}
 function encodeLink(config, id) {
+  if (usesLinkConfig(config) && validPlan(id)) {
+    return location.origin + location.pathname + '#p=' + id;
+  }
   const payload = btoa(JSON.stringify({config, id})).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   return location.origin + location.pathname + '#share=' + payload;
 }
 function parseLink() {
+  const short = location.hash.match(/^#p=([a-f0-9]{32})$/);
+  if (short) return {config: {...LINK_CONFIG}, id: short[1]};
   const match = location.hash.match(/^#share=([\w-]+)$/);
   if (!match) return null;
   try {
@@ -242,6 +258,9 @@ async function connect(next) {
   if (connection?.id && unsubscribe) unsubscribe();
   connection=next;cloudDoc=null;connectionError='';
   localStorage.setItem(CONFIG_KEY,JSON.stringify(connection));
+  if (validPlan(connection.id)) {
+    history.replaceState(history.state, '', encodeLink(connection.config, connection.id));
+  }
   setPermissions();syncMenu();
   if (!sdk) await loadSdk(connection.config);
   if (!connection.id) return;
