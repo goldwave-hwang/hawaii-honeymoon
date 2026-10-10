@@ -25,6 +25,12 @@
 .sync-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid #d5e8e3;border-radius:13px;padding:10px 13px;margin-top:14px;color:#496b70;font-size:.88rem}.sync-bar button{border:1px solid #2a9390;color:#087474;background:#f5fdfb;border-radius:9px;padding:9px 11px;min-height:40px;font-weight:700;white-space:nowrap}.sync-dialog .field{font-family:inherit}.sync-dialog textarea{min-height:125px}.sync-help{font-size:.87rem;color:#527078;line-height:1.55}.sync-link{word-break:break-all;font-size:.8rem}.sync-dialog .dialog-actions{margin-top:12px}
 
 .readonly .add,.readonly .icon{display:none}.readonly .group-title input,.readonly .row input.field{background:#f6faf9;border-color:transparent;color:#153846;cursor:default}.readonly .row input[type=checkbox]{cursor:default}
+
+body:not(.readonly) .entry-text{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:grab}
+.entry.drag-placeholder{opacity:.3;background:#dff5f1;border-radius:10px}
+.drag-ghost{position:fixed!important;z-index:1000;pointer-events:none;margin:0!important;padding:10px;background:#fff;border:2px solid #087f9c;border-radius:12px;box-shadow:0 8px 26px #15384630;opacity:.96}
+.drag-ghost .entry-text{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.drag-ghost .icon{display:none}
+.reorder-help{font-size:.82rem;color:#527078;margin:12px 0 5px}.readonly .reorder-help{display:none}
 </style>
 </head>
 <body>
@@ -62,18 +68,93 @@
   function normalize(v){v.days.forEach(d=>d.entries=d.entries.map(e=>typeof e==='string'?{id:uid(),text:e}:{id:e.id||uid(),text:String(e.text??'')}));for(const kind of ['booking','packing'])v[kind].forEach(g=>{g.id=g.id||uid();g.items=(g.items||[]).map(i=>({id:i.id||uid(),text:String(i.text??''),done:!!i.done}));});return v;}
   function load(){let data;try{data=JSON.parse(localStorage.getItem(KEY));}catch{}if(data&&Array.isArray(data.days)&&Array.isArray(data.booking)&&Array.isArray(data.packing))return normalize(data);
     data=seed();try{const oldBooking=JSON.parse(localStorage.getItem('booking')||'null');if(Array.isArray(oldBooking)&&oldBooking.length)data.booking=oldBooking.map(g=>({name:String(g.title||g.name||'예약'),items:Array.isArray(g.items)?g.items.map(i=>({text:String(i.text||''),done:!!i.done})):g.memo?[{text:String(g.memo),done:false}]:[]}));const oldPacking=JSON.parse(localStorage.getItem('packing')||'null');if(Array.isArray(oldPacking)&&oldPacking.length)data.packing=oldPacking.map(g=>({name:String(g.name||'준비물'),items:Array.isArray(g.items)?g.items.map(i=>({text:String(i.text||''),done:!!i.done})):[]}));}catch{}return normalize(data);}
+  let drag=null,holdTimer=null,scrollFrame=null,suppressClickUntil=0;
   let data=load(),selected=0,island='big',canEdit=true;const lastDay={big:0,oahu:5};const $=s=>document.querySelector(s);
   function save(op){try{localStorage.setItem(KEY,JSON.stringify(data));if(op)window.dispatchEvent(new CustomEvent('hawaii-change',{detail:op}));$('#storage-status').textContent='이 기기의 브라우저에 자동 저장됩니다.';}catch{$('#storage-status').textContent='저장에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.';}}
   function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function renderDays(){ document.querySelectorAll('[data-island]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.island===island)));$('#island-panel').setAttribute('aria-labelledby','island-'+island);$('#island-caption').textContent=island==='big'?'10/31 DAY 05-A · 빅아일랜드에서 출발하는 일정':'10/31 DAY 05-B · 오아후에 도착하는 일정부터';$('#days').innerHTML=data.days.map((d,i)=>({d,i})).filter(({i})=>island==='big'?i<5:i>=5).map(({d,i})=>`<button class="day-btn" type="button" data-action="select-day" data-index="${i}" aria-pressed="${selected===i}"><strong>${esc(d.label)}</strong><span>${esc(d.date)}</span><small>${esc(d.place)}</small></button>`).join('');renderDetail();}
-  function renderDetail(){const d=data.days[selected];$('#day-detail').innerHTML=`<section class="card detail" aria-label="${esc(d.date)} 상세 일정"><div class="detail-head"><div><h2>${esc(d.label)} · ${esc(d.date)}</h2><p>${esc(d.place)}</p></div><span class="badge">상세 일정</span></div><div class="group-content">${d.entries.length?d.entries.map((entry,i)=>`<div class="entry"><p class="entry-text">${esc(entry.text)||'내용 없는 일정'}</p><button class="icon" type="button" data-action="entry-menu" data-index="${i}" aria-label="일정 ${i+1} 수정 또는 삭제" aria-haspopup="dialog">×</button></div>`).join(''):'<div class="empty">아직 적은 일정이 없어요.</div>'}</div><button class="add" type="button" data-action="add-entry">＋ 상세 일정 추가</button></section>`;}
+  function renderDetail(){cancelDrag(false);const d=data.days[selected];$('#day-detail').innerHTML=`<section class="card detail" aria-label="${esc(d.date)} 상세 일정"><div class="detail-head"><div><h2>${esc(d.label)} · ${esc(d.date)}</h2><p>${esc(d.place)}</p></div><span class="badge">상세 일정</span></div><p class="reorder-help">일정을 길게 눌러 위아래로 옮기세요.</p><div class="group-content">${d.entries.length?d.entries.map((entry,i)=>`<div class="entry" data-entry-id="${esc(entry.id)}"><p class="entry-text" ${canEdit?'tabindex="0" aria-label="길게 눌러 이동. 키보드는 Alt와 위아래 방향키"':''}>${esc(entry.text)||'내용 없는 일정'}</p><button class="icon" type="button" data-action="entry-menu" data-index="${i}" aria-label="일정 ${i+1} 수정 또는 삭제" aria-haspopup="dialog">×</button></div>`).join(''):'<div class="empty">아직 적은 일정이 없어요.</div>'}</div><button class="add" type="button" data-action="add-entry">＋ 상세 일정 추가</button></section>`;}
+  function cancelDrag(redraw=true){
+    clearTimeout(holdTimer);holdTimer=null;cancelAnimationFrame(scrollFrame);scrollFrame=null;
+    const old=drag;drag=null;
+    if(old?.active){old.ghost.remove();old.row.classList.remove('drag-placeholder');suppressClickUntil=Date.now()+400;if(redraw)renderDetail();}
+  }
+  function moveEntry(day,id,beforeId){
+    if(!canEdit)return;
+    const entries=data.days[day]?.entries;if(!entries)return;
+    const from=entries.findIndex(e=>e.id===id);if(from<0||id===beforeId)return;
+    if((entries[from+1]?.id||null)===beforeId)return;
+    const [entry]=entries.splice(from,1);const to=entries.findIndex(e=>e.id===beforeId);
+    entries.splice(to<0?entries.length:to,0,entry);
+    save({type:'day-move',day,id,beforeId});
+  }
+  function positionDrag(){
+    if(!drag?.active)return;
+    const {row,ghost,x,y,offset}=drag;
+    ghost.style.top=(y-offset)+'px';
+    const siblings=[...row.parentElement.children].filter(el=>el!==row&&el.matches('.entry'));
+    const next=siblings.find(el=>{const box=el.getBoundingClientRect();return y<box.top+box.height/2;});
+    row.parentElement.insertBefore(row,next||null);
+  }
+  function scrollDrag(){
+    if(!drag?.active)return;
+    const edge=65;const h=window.innerHeight;
+    const delta=drag.y<edge?-Math.min(12,(edge-drag.y)/5):drag.y>h-edge?Math.min(12,(drag.y-h+edge)/5):0;
+    if(delta){window.scrollBy(0,delta);positionDrag();}
+    scrollFrame=requestAnimationFrame(scrollDrag);
+  }
+  function startHold(target,x,y,mode){
+    if(!canEdit||!target.closest('.entry-text')||document.querySelector('dialog[open]'))return;
+    cancelDrag();const row=target.closest('.entry');if(!row)return;
+    drag={row,id:row.dataset.entryId,day:selected,x,y,startX:x,startY:y,mode,active:false};
+    holdTimer=setTimeout(()=>{
+      if(!drag||!canEdit||drag.day!==selected)return cancelDrag();
+      const box=row.getBoundingClientRect();const ghost=row.cloneNode(true);
+      ghost.removeAttribute('data-entry-id');ghost.className='drag-ghost';ghost.setAttribute('aria-hidden','true');
+      ghost.querySelectorAll('[tabindex]').forEach(el=>el.removeAttribute('tabindex'));
+      Object.assign(ghost.style,{left:box.left+'px',width:box.width+'px'});
+      document.body.appendChild(ghost);drag.ghost=ghost;drag.offset=drag.y-box.top;drag.active=true;
+      row.classList.add('drag-placeholder');positionDrag();scrollDrag();
+    },450);
+  }
+  function updateDrag(x,y,event){
+    if(!drag)return;
+    if(!drag.active){if(Math.hypot(x-drag.startX,y-drag.startY)>10)cancelDrag();return;}
+    if(event.cancelable)event.preventDefault();drag.x=x;drag.y=y;positionDrag();
+  }
+  function dropDrag(event){
+    if(!drag)return;
+    if(!drag.active){cancelDrag();return;}
+    if(event.cancelable)event.preventDefault();
+    const {row,id,day}=drag;const beforeId=row.nextElementSibling?.dataset.entryId||null;
+    cancelDrag(false);moveEntry(day,id,beforeId);renderDetail();
+  }
+  const detailHost=$('#day-detail');
+  detailHost.addEventListener('touchstart',e=>{if(e.touches.length!==1){cancelDrag();return;}const t=e.touches[0];startHold(e.target,t.clientX,t.clientY,'touch');},{passive:true});
+  document.addEventListener('touchmove',e=>{if(drag?.mode!=='touch')return;if(e.touches.length!==1){cancelDrag();return;}const t=e.touches[0];updateDrag(t.clientX,t.clientY,e);},{passive:false});
+  document.addEventListener('touchend',e=>{if(drag?.mode==='touch')dropDrag(e);},{passive:false});
+  document.addEventListener('touchcancel',()=>cancelDrag());
+  detailHost.addEventListener('mousedown',e=>{if(e.button===0)startHold(e.target,e.clientX,e.clientY,'mouse');});
+  document.addEventListener('mousemove',e=>{if(drag?.mode==='mouse')updateDrag(e.clientX,e.clientY,e);});
+  document.addEventListener('mouseup',e=>{if(drag?.mode==='mouse')dropDrag(e);});
+  detailHost.addEventListener('contextmenu',e=>{if(canEdit&&e.target.closest('.entry-text'))e.preventDefault();});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){cancelDrag();return;}
+    if(!canEdit||!e.altKey||!['ArrowUp','ArrowDown'].includes(e.key)||!e.target.matches('.entry-text'))return;
+    e.preventDefault();const id=e.target.closest('.entry').dataset.entryId;const entries=data.days[selected].entries;const i=entries.findIndex(x=>x.id===id);
+    if(e.key==='ArrowUp'&&i>0)moveEntry(selected,id,entries[i-1].id);
+    else if(e.key==='ArrowDown'&&i<entries.length-1)moveEntry(selected,id,entries[i+2]?.id||null);
+    renderDetail();[...detailHost.querySelectorAll('.entry')].find(el=>el.dataset.entryId===id)?.querySelector('.entry-text').focus();
+  });
+  window.addEventListener('blur',()=>cancelDrag());
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelDrag();});
   let editingDay=null,editingIndex=null;
   function openEntry(index){editingDay=selected;editingIndex=index;const dialog=$('#entry-dialog');if(index===null){showEditor();}else{$('#entry-dialog-title').textContent='이 일정을 수정하거나 삭제할까요?';$('#entry-dialog-body').innerHTML=`<p class="entry-preview">${esc(data.days[editingDay].entries[index].text)||'내용 없는 일정'}</p><div class="dialog-actions"><button class="dialog-primary" type="button" data-action="edit-entry">수정</button><button class="dialog-danger" type="button" data-action="confirm-delete-entry">삭제</button><button class="dialog-secondary" type="button" data-action="close-entry">취소</button></div>`;}dialog.showModal();if(index===null)$('#entry-draft').focus();}
-  function showEditor(){$('#entry-dialog-title').textContent=editingIndex===null?'상세 일정 추가':'상세 일정 수정';$('#entry-dialog-body').innerHTML=`<label class="label" for="entry-draft">시간과 할 일</label><textarea class="field" id="entry-draft" placeholder="시간과 할 일을 적어 주세요">${editingIndex===null?'':esc(data.days[editingDay].entries[editingIndex].text)}</textarea>${editingIndex===null?`<label class="label" for="entry-position">추가 위치</label><select class="field" id="entry-position"><option value="">맨 마지막에 추가</option>${data.days[editingDay].entries.map((entry,i)=>`<option value="${esc(entry.id)}">${i+1}. ${esc(entry.text.replace(/\s+/g,' ').slice(0,55)||'내용 없는 일정')} 앞에 추가</option>`).join('')}</select><p class="subtle">중간에 넣으려면 바로 다음에 올 일정을 선택하세요.</p>`:''}<p id="entry-error" class="dialog-error" role="alert"></p><div class="dialog-actions"><button type="button" class="dialog-primary" data-action="save-entry">저장</button><button type="button" class="dialog-secondary" data-action="close-entry">취소</button></div>`;$('#entry-draft').focus();}
-  function commitEntry(){const value=$('#entry-draft').value;if(!value.trim()){$('#entry-error').textContent='일정 내용을 입력해 주세요.';$('#entry-draft').focus();return;}let op;if(editingIndex===null){const entry={id:uid(),text:value};const entries=data.days[editingDay].entries;const beforeId=$('#entry-position').value||null;const position=entries.findIndex(e=>e.id===beforeId);entries.splice(position<0?entries.length:position,0,entry);op={type:'day-add',day:editingDay,entry,beforeId};}else{const entry=data.days[editingDay].entries[editingIndex];entry.text=value;op={type:'day-edit',day:editingDay,id:entry.id,text:value};}save(op);$('#entry-dialog').close();renderDetail();}
+  function showEditor(){$('#entry-dialog-title').textContent=editingIndex===null?'상세 일정 추가':'상세 일정 수정';$('#entry-dialog-body').innerHTML=`<label class="label" for="entry-draft">시간과 할 일</label><textarea class="field" id="entry-draft" placeholder="시간과 할 일을 적어 주세요">${editingIndex===null?'':esc(data.days[editingDay].entries[editingIndex].text)}</textarea><p id="entry-error" class="dialog-error" role="alert"></p><div class="dialog-actions"><button type="button" class="dialog-primary" data-action="save-entry">저장</button><button type="button" class="dialog-secondary" data-action="close-entry">취소</button></div>`;$('#entry-draft').focus();}
+  function commitEntry(){const value=$('#entry-draft').value;if(!value.trim()){$('#entry-error').textContent='일정 내용을 입력해 주세요.';$('#entry-draft').focus();return;}let op;if(editingIndex===null){const entry={id:uid(),text:value};const entries=data.days[editingDay].entries;const beforeId=null;entries.push(entry);op={type:'day-add',day:editingDay,entry,beforeId};}else{const entry=data.days[editingDay].entries[editingIndex];entry.text=value;op={type:'day-edit',day:editingDay,id:entry.id,text:value};}save(op);$('#entry-dialog').close();renderDetail();}
   function renderGroups(kind){const host=$('#'+kind+'-groups');host.innerHTML=data[kind].map((g,gi)=>`<section class="card"><div class="group-title"><input class="field" value="${esc(g.name)}" data-field="group-name" data-kind="${kind}" data-group="${gi}" aria-label="${kind==='booking'?'예약 카테고리':'준비물 대분류'} 이름"><button class="icon" type="button" data-action="delete-group" data-kind="${kind}" data-group="${gi}" aria-label="${esc(g.name)} 삭제">×</button></div><div class="group-content">${g.items.length?g.items.map((item,ii)=>`<div class="row"><input type="checkbox" data-field="item-done" data-kind="${kind}" data-group="${gi}" data-item="${ii}" ${item.done?'checked':''} aria-label="${esc(item.text||'항목')} 완료"><input class="field ${item.done?'done':''}" value="${esc(item.text)}" data-field="item-text" data-kind="${kind}" data-group="${gi}" data-item="${ii}" placeholder="${kind==='booking'?'예약 항목':'준비물'} 입력" aria-label="항목 이름"><button class="icon" type="button" data-action="delete-item" data-kind="${kind}" data-group="${gi}" data-item="${ii}" aria-label="항목 삭제">×</button></div>`).join(''):'<p class="subtle">아직 항목이 없어요.</p>'}</div><button class="add" type="button" data-action="add-item" data-kind="${kind}" data-group="${gi}">＋ 항목 추가</button></section>`).join('')||'<div class="empty">카테고리를 추가해 주세요.</div>';}
-  function tab(name){document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==name);}
-  document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.action&&b.dataset.action!=='select-day'&&!canEdit)return;if(b.dataset.island){lastDay[island]=selected;island=b.dataset.island;selected=lastDay[island];renderDays();return;}if(b.dataset.tab){tab(b.dataset.tab);return;}const a=b.dataset.action,kind=b.dataset.kind,gi=Number(b.dataset.group),ii=Number(b.dataset.item);if(a==='select-day'){selected=Number(b.dataset.index);renderDays();$('#day-detail').scrollIntoView({behavior:'smooth',block:'nearest'});}else if(a==='add-entry'){openEntry(null);}else if(a==='entry-menu'){openEntry(Number(b.dataset.index));}else if(a==='edit-entry'){showEditor();}else if(a==='close-entry'){$('#entry-dialog').close();}else if(a==='save-entry'){commitEntry();}else if(a==='confirm-delete-entry'){const id=data.days[editingDay].entries[editingIndex].id;data.days[editingDay].entries.splice(editingIndex,1);save({type:'day-delete',day:editingDay,id});$('#entry-dialog').close();renderDetail();}else if(a==='add-group'){const group={id:uid(),name:'',items:[]};data[kind].push(group);save({type:'group-add',kind,group});renderGroups(kind);$('#'+kind+'-groups .card:last-child .group-title input')?.focus();}else if(a==='delete-group'){if(!confirm('이 카테고리와 안의 항목을 모두 삭제할까요?'))return;const id=data[kind][gi].id;data[kind].splice(gi,1);save({type:'group-delete',kind,id});renderGroups(kind);}else if(a==='add-item'){const item={text:'',done:false,id:uid()};data[kind][gi].items.push(item);save({type:'item-add',kind,groupId:data[kind][gi].id,item});renderGroups(kind);$('#'+kind+'-groups .card:nth-child('+(gi+1)+') .row:last-child input[data-field="item-text"]')?.focus();}else if(a==='delete-item'){const id=data[kind][gi].items[ii].id;data[kind][gi].items.splice(ii,1);save({type:'item-delete',kind,groupId:data[kind][gi].id,id});renderGroups(kind);}});
+  function tab(name){cancelDrag();document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==name);}
+  document.addEventListener('click',e=>{if(Date.now()<suppressClickUntil){e.preventDefault();return;}const b=e.target.closest('button');if(!b)return;if(b.dataset.action&&b.dataset.action!=='select-day'&&!canEdit)return;if(b.dataset.island){lastDay[island]=selected;island=b.dataset.island;selected=lastDay[island];renderDays();return;}if(b.dataset.tab){tab(b.dataset.tab);return;}const a=b.dataset.action,kind=b.dataset.kind,gi=Number(b.dataset.group),ii=Number(b.dataset.item);if(a==='select-day'){selected=Number(b.dataset.index);renderDays();$('#day-detail').scrollIntoView({behavior:'smooth',block:'nearest'});}else if(a==='add-entry'){openEntry(null);}else if(a==='entry-menu'){openEntry(Number(b.dataset.index));}else if(a==='edit-entry'){showEditor();}else if(a==='close-entry'){$('#entry-dialog').close();}else if(a==='save-entry'){commitEntry();}else if(a==='confirm-delete-entry'){const id=data.days[editingDay].entries[editingIndex].id;data.days[editingDay].entries.splice(editingIndex,1);save({type:'day-delete',day:editingDay,id});$('#entry-dialog').close();renderDetail();}else if(a==='add-group'){const group={id:uid(),name:'',items:[]};data[kind].push(group);save({type:'group-add',kind,group});renderGroups(kind);$('#'+kind+'-groups .card:last-child .group-title input')?.focus();}else if(a==='delete-group'){if(!confirm('이 카테고리와 안의 항목을 모두 삭제할까요?'))return;const id=data[kind][gi].id;data[kind].splice(gi,1);save({type:'group-delete',kind,id});renderGroups(kind);}else if(a==='add-item'){const item={text:'',done:false,id:uid()};data[kind][gi].items.push(item);save({type:'item-add',kind,groupId:data[kind][gi].id,item});renderGroups(kind);$('#'+kind+'-groups .card:nth-child('+(gi+1)+') .row:last-child input[data-field="item-text"]')?.focus();}else if(a==='delete-item'){const id=data[kind][gi].items[ii].id;data[kind][gi].items.splice(ii,1);save({type:'item-delete',kind,groupId:data[kind][gi].id,id});renderGroups(kind);}});
   document.querySelector('.island-tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const next=e.key==='Home'?'big':e.key==='End'?'oahu':island==='big'?'oahu':'big';const b=document.querySelector('[data-island='+next+']');b.click();b.focus();});
   document.addEventListener('input',e=>{if(!canEdit)return;const x=e.target,f=x.dataset.field,kind=x.dataset.kind,gi=Number(x.dataset.group),ii=Number(x.dataset.item);let op;if(f==='group-name'){data[kind][gi].name=x.value;op={type:'group-name',kind,id:data[kind][gi].id,name:x.value};}else if(f==='item-text'){data[kind][gi].items[ii].text=x.value;op={type:'item-text',kind,groupId:data[kind][gi].id,id:data[kind][gi].items[ii].id,text:x.value};}else return;save(op);});
   document.addEventListener('change',e=>{if(!canEdit)return;const x=e.target;if(x.dataset.field==='item-done'){const kind=x.dataset.kind;data[kind][Number(x.dataset.group)].items[Number(x.dataset.item)].done=x.checked;x.nextElementSibling.classList.toggle('done',x.checked);save({type:'item-done',kind,groupId:data[kind][Number(x.dataset.group)].id,id:data[kind][Number(x.dataset.group)].items[Number(x.dataset.item)].id,done:x.checked});}});
@@ -191,6 +272,7 @@ function applyOp(state, op) {
     if (!entries) return;
     const index=entries.findIndex(e=>e.id===op.id);
     if (op.type==='day-add' && !entries.some(e=>e.id===op.entry.id)) { const position=entries.findIndex(e=>e.id===op.beforeId); entries.splice(position<0?entries.length:position,0,op.entry); }
+    if (op.type==='day-move' && index>=0 && op.id!==op.beforeId) { const [entry]=entries.splice(index,1); const position=entries.findIndex(e=>e.id===op.beforeId); entries.splice(position<0?entries.length:position,0,entry); }
     if (op.type==='day-edit' && index>=0) entries[index].text=op.text;
     if (op.type==='day-delete' && index>=0) entries.splice(index,1);
     return;
