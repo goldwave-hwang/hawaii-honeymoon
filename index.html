@@ -7,6 +7,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-hawaii.png?v=20261011">
 <link rel="icon" type="image/png" href="./apple-touch-icon-hawaii.png?v=20261011">
 <meta name="apple-mobile-web-app-title" content="하와이 여행">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>인재 ♥ 보연 · 하와이 허니문</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#153846;background:#eef8f9;font-size:16px}*{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #e5a034;outline-offset:2px}.hero{background:linear-gradient(125deg,#075b77,#099db2 65%,#44b6b0);color:#fff;padding:25px max(18px,calc((100vw - 760px)/2));position:relative;overflow:hidden}.hero:after{content:"✺";position:absolute;right:7%;top:-57px;font-size:180px;color:#ffffff16;pointer-events:none}.eyebrow{font-size:.88rem;letter-spacing:.1em;font-weight:700}.hero h1{font-size:clamp(1.7rem,6vw,2.5rem);margin:6px 0 4px;line-height:1.2}.hero p{margin:0;color:#e3fcff;font-size:.95rem}.wrap{max-width:760px;margin:auto;padding:0 16px 70px}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fff;border-radius:16px;padding:6px;margin:16px 0 19px;box-shadow:0 4px 20px #10536513}.tabs button{border:0;border-radius:11px;background:transparent;color:#416270;font-weight:700;min-height:48px}.tabs button[aria-selected=true]{background:#087f9c;color:white}.panel[hidden]{display:none}.section-title{margin:20px 0 13px;font-size:1.2rem}.hint{color:#536d76;font-size:.88rem;margin:0 0 14px;line-height:1.5}.day-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.day-btn{text-align:left;background:#fff;border:2px solid transparent;border-radius:15px;padding:15px 13px;min-height:101px;box-shadow:0 3px 13px #1843550c;color:#163e4a}.day-btn[aria-pressed=true]{border-color:#008eaa;background:#e6f9fb}.day-btn strong{display:block;font-size:.83rem;color:#087f9c}.day-btn span{display:block;font-size:1rem;font-weight:750;margin:4px 0 2px}.day-btn small{display:block;color:#57727a;font-size:.82rem;line-height:1.3}.card{background:#fff;border:1px solid #d9edf0;border-radius:18px;padding:17px;margin:13px 0;box-shadow:0 3px 16px #1843550c}.detail{margin-top:18px}.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.detail-head h2{font-size:1.25rem;margin:0 0 4px}.detail-head p{margin:0;color:#57727a}.field{width:100%;border:1px solid #bdd9df;background:#fff;border-radius:10px;padding:11px 12px;color:#153846;min-width:0}.field::placeholder{color:#708b93}textarea.field{min-height:74px;resize:vertical;line-height:1.5}.row{display:flex;align-items:center;gap:8px;margin:10px 0}.row .field{flex:1}.row input[type=checkbox]{width:22px;height:22px;accent-color:#087f9c;flex:none}.row .done{text-decoration:line-through;color:#748b91}.icon{flex:none;border:0;background:#f1f6f7;color:#576e76;border-radius:10px;width:40px;height:42px;font-size:1.15rem}.icon:hover{background:#fcebe6;color:#a7412e}.add{border:1px dashed #68b3c1;background:#f0fbfc;color:#056b85;border-radius:11px;font-weight:750;padding:11px 14px;min-height:44px}.add:hover{background:#dff5f8}.wide{width:100%;margin:5px 0 12px}.group-title{display:flex;gap:8px;align-items:center}.group-title .field{font-weight:750}.group-content{margin-top:12px}.subtle{color:#617b82;font-size:.88rem;margin:9px 0}.label{display:block;font-size:.85rem;font-weight:700;color:#42646e;margin:15px 0 6px}.note{margin-top:10px}.empty{border:1px dashed #a9cdd4;border-radius:13px;color:#617b82;padding:17px;text-align:center;background:#f8fdfd}.detail .entry{display:flex;gap:8px;align-items:flex-start;margin:10px 0}.entry textarea{flex:1;min-height:58px}.status{color:#53717b;font-size:.8rem;text-align:center;margin:20px 0}.badge{background:#e4f7f8;color:#07758b;padding:5px 9px;border-radius:99px;font-size:.78rem;white-space:nowrap}@media(max-width:390px){.wrap{padding-left:12px;padding-right:12px}.day-btn{padding:12px 10px}.day-btn span{font-size:.92rem}.card{padding:13px}.tabs button{font-size:.91rem}}
@@ -229,6 +231,13 @@ const ui = {
 };
 const planner = window.HawaiiPlanner;
 const CONFIG_KEY = 'hawaii-shared-connection-v1';
+const SNAPSHOT_KEY = 'hawaii-offline-plan-v1-';
+let savedSnapshot = null;
+function snapshotKey(id) { return SNAPSHOT_KEY + connection.config.projectId + '-' + id; }
+function cacheSnapshot() {
+  if (!connection?.id || !cloudDoc) return;
+  try { savedSnapshot={state:cloudDoc.state,savedAt:Date.now()};localStorage.setItem(snapshotKey(connection.id),JSON.stringify(savedSnapshot));window.dispatchEvent(new Event('hawaii-offline-saved')); } catch { document.getElementById('storage-status').textContent='오프라인 내용 저장 실패 · 저장 공간을 확인해 주세요.'; }
+}
 const QUEUE_KEY = 'hawaii-shared-pending-v1-';
 let connection = null, sdk = null, auth = null, db = null, planRef = null;
 let cloudDoc = null, unsubscribe = null, busy = false, debounceTimer = null;
@@ -241,8 +250,12 @@ const isEditor = () => !!cloudDoc && cloudDoc.editorEmails.includes(getEmail());
 function setStatus(message) { ui.state.textContent = message; }
 function setPermissions() {
   // The Firestore rules enforce permissions even if someone changes the page's buttons.
-  const editable = !connection || (isEditor() && !!auth?.currentUser);
+  const editable = navigator.onLine && (!connection || (isEditor() && !!auth?.currentUser));
   planner.setEditable(editable);
+  if (!navigator.onLine) {
+    ui.state.textContent = connection?.id && !savedSnapshot ? '오프라인 · 이 공유 일정은 온라인에서 먼저 열어 주세요' : '오프라인 · 저장된 내용 보기';
+    return;
+  }
   ui.state.textContent = connectionError || (!connection ? '이 기기에 저장 중 · 공유 연결 전' :
     busy || queue.length ? '공유 일정 저장 중…' :
     !cloudDoc ? '공유 일정을 불러오는 중…' :
@@ -363,7 +376,7 @@ function acceptCloud() {
   setPermissions();
 }
 async function flush() {
-  if (busy || !queue.length || !planRef || !isEditor()) { setPermissions(); return; }
+  if (!navigator.onLine || busy || !queue.length || !planRef || !isEditor()) { setPermissions(); return; }
   busy=true;setPermissions();
   while (queue.length && planRef && isEditor()) {
     const op=queue[0];
@@ -376,7 +389,7 @@ async function flush() {
         tx.update(planRef,{state,updatedAt:sdk.serverTimestamp()});
         return state;
       });
-      cloudDoc.state=merged;
+      cloudDoc.state=merged;cacheSnapshot();
       queue.shift();localStorage.setItem(QUEUE_KEY+connection.id,JSON.stringify(queue));
       connectionError='';
     } catch(error) {showError(error);break;}
@@ -404,6 +417,13 @@ async function connect(next) {
     history.replaceState(history.state, '', encodeLink(connection.config, connection.id));
   }
   setPermissions();syncMenu();
+  savedSnapshot=null;
+  if (connection.id) {
+    try { savedSnapshot=JSON.parse(localStorage.getItem(snapshotKey(connection.id))||'null');if(savedSnapshot) planner.acceptRemote(normalizedRemote(savedSnapshot.state)); } catch { savedSnapshot=null; }
+    if (!savedSnapshot) planner.acceptRemote({days:planner.getState().days.map(d=>({...d,entries:[]})),booking:[],packing:[]});
+  }
+  setPermissions();
+  if (!navigator.onLine) return;
   if (!sdk) await loadSdk(connection.config);
   if (!connection.id) return;
   planRef=sdk.doc(db,'plans',connection.id);
@@ -413,7 +433,7 @@ async function connect(next) {
     const item=snapshot.data();
     try {cloudDoc={state:normalizedRemote(item.state),editorEmails:item.editorEmails||[]};}
     catch(error){showError(error);return;}
-    connectionError='';setPermissions();acceptCloud();syncMenu();flush();
+    cacheSnapshot();connectionError='';setPermissions();acceptCloud();syncMenu();flush();
   },showError);
 }
 window.addEventListener('hawaii-change',event=>{
@@ -428,13 +448,18 @@ window.addEventListener('hawaii-change',event=>{
   if(debounceTimer) clearTimeout(debounceTimer);
   debounceTimer=setTimeout(flush,isText?450:0);
 });
-window.addEventListener('online',flush);
+window.addEventListener('offline',()=>{setPermissions();syncMenu();});
+window.addEventListener('online',async()=>{
+  if(connection) {try {await connect(connection);} catch(error){showError(error);} }
+  else setPermissions();
+});
 document.addEventListener('focusout',()=>setTimeout(acceptCloud,0));
 document.getElementById('sync-open').addEventListener('click',()=>{syncMenu();ui.dialog.showModal();});
 document.getElementById('sync-close').addEventListener('click',()=>ui.dialog.close());
 ui.dialog.addEventListener('click',async event=>{
   const action=event.target.closest('button')?.dataset.sync;
   if (!action) return;
+  if (!navigator.onLine && action!=='copy') {document.getElementById('sync-error').textContent='인터넷 연결 후 이용해 주세요.';return;}
   try {
     if (action==='configure') {
       const config=parseConfig(document.getElementById('firebase-config').value);
@@ -468,6 +493,22 @@ try {
 } catch(error) {showError(error);}
 setPermissions();
 
+</script>
+<script>
+(() => {
+  const status=document.getElementById('storage-status');
+  function show(ready) {
+    const config=JSON.parse(localStorage.getItem('hawaii-shared-connection-v1')||'null');
+    const snapshot=config?.id && localStorage.getItem('hawaii-offline-plan-v1-'+config.config.projectId+'-'+config.id);
+    status.textContent=ready ? (config?.id && !snapshot ? '화면 저장 완료 · 공유 내용을 불러오면 오프라인으로 볼 수 있어요.' : '오프라인 보기 준비 완료 · 온라인에서 연 내용이 저장됩니다.') : '오프라인 준비 실패 · 인터넷 연결 후 다시 열어 주세요.';
+  }
+  let offlineReady=false;
+  window.addEventListener('hawaii-offline-saved',()=>{if(offlineReady)show(true);});
+  if ('serviceWorker' in navigator && location.protocol!=='file:') {
+    navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'})
+      .then(()=>navigator.serviceWorker.ready).then(()=>{offlineReady=true;show(true);}).catch(()=>show(false));
+  } else status.textContent='오프라인 기능은 업로드한 사이트에서 이용할 수 있어요.';
+})();
 </script>
 </body>
 </html>
